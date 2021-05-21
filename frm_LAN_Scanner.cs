@@ -9,7 +9,7 @@ namespace Deployer
 {
     public partial class frmLanScanner : Form
     {
-        [Obsolete]
+        bool cancel = false;
         public frmLanScanner()
         {
             InitializeComponent();
@@ -20,52 +20,63 @@ namespace Deployer
             listViewLanScan.Columns.Add("Hostname", listViewLanScan.Size.Width / 3);
             listViewLanScan.Columns.Add("Description", listViewLanScan.Size.Width / 3);
             textBoxIpRange.Text = ReturnIP();
+            progressBar.Maximum = 254;
             Show();
         }
 
-        [Obsolete]
         private string ReturnIP()
         {
             string hostName = Dns.GetHostName();
-            string myIP = Dns.GetHostByName(hostName).AddressList[0].ToString();
+            string myIP = Dns.GetHostEntry(hostName).ToString();
             myIP = myIP.Substring(0, myIP.LastIndexOf("."));
             return myIP;
         }
-
+        private void reset()
+        {
+            textBoxIpRange.Text = "";
+            listViewLanScan.Items.Clear();
+            listBoxAvailableIps.Items.Clear();
+            progressBar.Value = 0;
+            labelStatusText.Text = "";
+        }
         private void btnScan_Click(object sender, EventArgs e)
         {
-            string subnet = textBoxIpRange.Text;
-            progressBar.Maximum = 254;
+            cancel = false;
+            int maximum_ip = 255;
+            string network_name = textBoxIpRange.Text; //eg 10.0.0 / 192.168.0
+
             progressBar.Value = 0;
+            textBoxIpRange.Text = "";
             listViewLanScan.Items.Clear();
-            string[] availables = new string[] { };
             Task.Factory.StartNew(new Action(() =>
             {
-                for (int i = 1; i < 255; i++)
+                for (int computer_name = 1; computer_name < maximum_ip; computer_name++)
                 {
-                    //Thread.Sleep(1000);//sleep for 1 second between each iteration
-                    string ip = $"{subnet}.{i}";
+                    string ip = $"{network_name}.{computer_name}";
                     Ping ping = new Ping();
                     PingReply reply = ping.Send(ip, 100);
                     if (reply.Status == IPStatus.Success)
                     {
+                        if(cancel == true)
+                        {
+                            reset();
+                            return;
+                        }
                         progressBar.BeginInvoke(new Action(() =>
                         {
                             try
                             {
                                 IPHostEntry host = Dns.GetHostEntry(IPAddress.Parse(ip));
-                                listViewLanScan.Items.Add(new ListViewItem(new String[] { ip, host.HostName, "Up" }));
+                                listViewLanScan.Items.Add(new ListViewItem(new String[] { ip, host.HostName, "UP" }));
                             }
                             catch
                             {
                                 listViewLanScan.Items.Add(new ListViewItem(new String[] { ip, "", "Up - Couldn't retrieve hostname" }));
-                                //listBoxAvailableIps.Items.Add(ip);
-                                // MessageBox.Show($"Couldn't retrieve hostname from {ip}", "Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                             progressBar.Value += 1;
-                            lblStatus.ForeColor = Color.Blue;
+                            lblStatus.ForeColor = Color.Purple;
                             lblStatus.Text = $"Scanning: {ip}";
-                            if (progressBar.Value == 253)
+                            if (progressBar.Value == 254)
                                 lblStatus.Text = "Finished";
                         }));
                     }
@@ -74,11 +85,10 @@ namespace Deployer
                         progressBar.BeginInvoke(new Action(() =>
                         {
                             progressBar.Value += 1;
-                            lblStatus.ForeColor = Color.DarkGray;
+                            lblStatus.ForeColor = Color.Purple;
                             lblStatus.Text = $"Scanning: {ip}";
-                            //listViewLanScan.Items.Add(new ListViewItem(new String[] { ip, "", "Down" }));
                             listBoxAvailableIps.Items.Add(ip);
-                            if (progressBar.Value == 253)
+                            if (progressBar.Value == 254)
                                 lblStatus.Text = "Finished";
                         }));
                     }
@@ -91,5 +101,10 @@ namespace Deployer
             toolTipIPRange.SetToolTip(textbox, textbox.Tag.ToString());
             toolTipIPRange.ToolTipTitle = textbox.Name;
         }//tooltip message
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            cancel = true;
+        }
     }
 }

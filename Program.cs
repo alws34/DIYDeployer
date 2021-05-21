@@ -16,7 +16,7 @@ namespace Deployer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Deployer());
+            Application.Run(new frmLanScanner());
         }
     }
 }

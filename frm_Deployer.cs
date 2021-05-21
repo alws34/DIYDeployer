@@ -31,7 +31,6 @@ namespace Deployer
         bool isPortAvailable = true;
         Process installBatch;
 
-        [Obsolete]
         public Deployer()
         {
             InitializeComponent();
@@ -81,7 +80,7 @@ namespace Deployer
 
         private void checkBox_CheckChanged(object sender, EventArgs e)//add program to the installation array
         {
-            CheckBox chckbox = (sender as CheckBox);
+            CheckBox chckbox = sender as CheckBox;
             string programName = chckbox.Name;//Tag.ToString();
             string programPath = chckbox.Tag.ToString();
             if (chckbox.Checked)//add program
@@ -305,7 +304,6 @@ namespace Deployer
             toolTipdynamic.ToolTipTitle = textbox.Name;
         }//tooltip message
 
-        [Obsolete]
         private void buttonReset_Click(object sender, EventArgs e)
         {
             Deployer d = new Deployer();
@@ -320,7 +318,6 @@ namespace Deployer
             textBoxWrdPort.Text = randPort.ToString();
         }
 
-        [Obsolete]
         private void checkBoxScanLan_CheckStateChanged(object sender, EventArgs e)
         {
             if(checkBoxScanLan.Checked)
