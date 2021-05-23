@@ -103,6 +103,14 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SilentSwitchedDBDataSet.cs">
+      <DependentUpon>SilentSwitchedDBDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="SilentSwitchedDBDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SilentSwitchedDBDataSet.xsd</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="frm_Deployer.resx">
       <DependentUpon>frm_Deployer.cs</DependentUpon>
     </EmbeddedResource>
@@ -129,12 +137,26 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="SilentSwitchedDBDataSet.xsc">
+      <DependentUpon>SilentSwitchedDBDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="SilentSwitchedDBDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>SilentSwitchedDBDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="SilentSwitchedDBDataSet.xss">
+      <DependentUpon>SilentSwitchedDBDataSet.xsd</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="deployer_icon.ico" />
+    <Content Include="SilentSwitchedDB.accdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">

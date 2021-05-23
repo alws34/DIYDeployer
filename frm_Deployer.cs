@@ -7,11 +7,14 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
+using System.Data.OleDb;
 
 namespace Deployer
 {
+    
     public partial class Deployer : Form
-    {
+    {     
+        string conSTR =  @"Microsoft.ACE.OLEDB.12.0; Data Source =| DataDirectory |\SilentSwitchedDB.accdb";
         private static string General = "";
         private static string PCcare = "";
         private static string Office = "";
@@ -31,6 +34,7 @@ namespace Deployer
         bool isPortAvailable = true;
         Process installBatch;
 
+        [Obsolete]
         public Deployer()
         {
             InitializeComponent();
@@ -69,6 +73,7 @@ namespace Deployer
                             chckbox.CheckedChanged += new EventHandler(checkBox_CheckChanged);
                             flowLayoutPanel.Controls.Add(chckbox);
                         }
+                        
                     }
                 }
             }
