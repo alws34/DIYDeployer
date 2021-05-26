@@ -53,12 +53,10 @@ namespace Deployer
             this.buttonRandomWRDport = new System.Windows.Forms.Button();
             this.checkBoxScanLan = new System.Windows.Forms.CheckBox();
             this.panelMainPanel = new System.Windows.Forms.Panel();
-            this.txtboxPathFileLocation = new System.Windows.Forms.TextBox();
             this.labelPathFile = new System.Windows.Forms.Label();
-            this.panelPathsPanel = new System.Windows.Forms.Panel();
             this.textBoxDateTime = new System.Windows.Forms.TextBox();
+            this.txtboxInstallsPath = new System.Windows.Forms.TextBox();
             this.panelMainPanel.SuspendLayout();
-            this.panelPathsPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // time
@@ -111,7 +109,7 @@ namespace Deployer
             this.flowLayoutGeneralPrograms.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutGeneralPrograms.BackColor = System.Drawing.SystemColors.Window;
             this.flowLayoutGeneralPrograms.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutGeneralPrograms.Location = new System.Drawing.Point(40, 44);
+            this.flowLayoutGeneralPrograms.Location = new System.Drawing.Point(4, 44);
             this.flowLayoutGeneralPrograms.MaximumSize = new System.Drawing.Size(420, 600);
             this.flowLayoutGeneralPrograms.MinimumSize = new System.Drawing.Size(58, 50);
             this.flowLayoutGeneralPrograms.Name = "flowLayoutGeneralPrograms";
@@ -124,7 +122,7 @@ namespace Deployer
             this.flowLayoutPanelOffice.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanelOffice.BackColor = System.Drawing.SystemColors.Window;
             this.flowLayoutPanelOffice.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanelOffice.Location = new System.Drawing.Point(408, 468);
+            this.flowLayoutPanelOffice.Location = new System.Drawing.Point(717, 256);
             this.flowLayoutPanelOffice.MaximumSize = new System.Drawing.Size(0, 150);
             this.flowLayoutPanelOffice.MinimumSize = new System.Drawing.Size(58, 50);
             this.flowLayoutPanelOffice.Name = "flowLayoutPanelOffice";
@@ -137,7 +135,7 @@ namespace Deployer
             this.flowLayoutPanelPcCare.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanelPcCare.BackColor = System.Drawing.Color.White;
             this.flowLayoutPanelPcCare.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanelPcCare.Location = new System.Drawing.Point(408, 44);
+            this.flowLayoutPanelPcCare.Location = new System.Drawing.Point(507, 44);
             this.flowLayoutPanelPcCare.MaximumSize = new System.Drawing.Size(0, 150);
             this.flowLayoutPanelPcCare.MinimumSize = new System.Drawing.Size(58, 50);
             this.flowLayoutPanelPcCare.Name = "flowLayoutPanelPcCare";
@@ -152,7 +150,7 @@ namespace Deployer
             this.flowLayoutPanelGamingPlatforms.BackColor = System.Drawing.SystemColors.Window;
             this.flowLayoutPanelGamingPlatforms.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanelGamingPlatforms.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.flowLayoutPanelGamingPlatforms.Location = new System.Drawing.Point(673, 44);
+            this.flowLayoutPanelGamingPlatforms.Location = new System.Drawing.Point(717, 44);
             this.flowLayoutPanelGamingPlatforms.MaximumSize = new System.Drawing.Size(0, 150);
             this.flowLayoutPanelGamingPlatforms.MinimumSize = new System.Drawing.Size(58, 50);
             this.flowLayoutPanelGamingPlatforms.Name = "flowLayoutPanelGamingPlatforms";
@@ -166,7 +164,7 @@ namespace Deployer
             this.flowLayoutPanelProgramming.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanelProgramming.BackColor = System.Drawing.SystemColors.Window;
             this.flowLayoutPanelProgramming.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanelProgramming.Location = new System.Drawing.Point(408, 256);
+            this.flowLayoutPanelProgramming.Location = new System.Drawing.Point(507, 256);
             this.flowLayoutPanelProgramming.MaximumSize = new System.Drawing.Size(0, 180);
             this.flowLayoutPanelProgramming.MinimumSize = new System.Drawing.Size(58, 50);
             this.flowLayoutPanelProgramming.Name = "flowLayoutPanelProgramming";
@@ -176,7 +174,7 @@ namespace Deployer
             // labelgeneral
             // 
             this.labelgeneral.AutoSize = true;
-            this.labelgeneral.Location = new System.Drawing.Point(34, 15);
+            this.labelgeneral.Location = new System.Drawing.Point(3, 13);
             this.labelgeneral.Name = "labelgeneral";
             this.labelgeneral.Size = new System.Drawing.Size(107, 13);
             this.labelgeneral.TabIndex = 49;
@@ -185,7 +183,7 @@ namespace Deployer
             // labelpcCare
             // 
             this.labelpcCare.AutoSize = true;
-            this.labelpcCare.Location = new System.Drawing.Point(405, 13);
+            this.labelpcCare.Location = new System.Drawing.Point(504, 13);
             this.labelpcCare.Name = "labelpcCare";
             this.labelpcCare.Size = new System.Drawing.Size(47, 13);
             this.labelpcCare.TabIndex = 50;
@@ -194,7 +192,7 @@ namespace Deployer
             // labelGamingPlatforms
             // 
             this.labelGamingPlatforms.AutoSize = true;
-            this.labelGamingPlatforms.Location = new System.Drawing.Point(673, 12);
+            this.labelGamingPlatforms.Location = new System.Drawing.Point(717, 12);
             this.labelGamingPlatforms.Name = "labelGamingPlatforms";
             this.labelGamingPlatforms.Size = new System.Drawing.Size(101, 13);
             this.labelGamingPlatforms.TabIndex = 51;
@@ -203,7 +201,7 @@ namespace Deployer
             // labelProgramming
             // 
             this.labelProgramming.AutoSize = true;
-            this.labelProgramming.Location = new System.Drawing.Point(405, 225);
+            this.labelProgramming.Location = new System.Drawing.Point(504, 225);
             this.labelProgramming.Name = "labelProgramming";
             this.labelProgramming.Size = new System.Drawing.Size(79, 13);
             this.labelProgramming.TabIndex = 52;
@@ -212,7 +210,7 @@ namespace Deployer
             // labeloffice
             // 
             this.labeloffice.AutoSize = true;
-            this.labeloffice.Location = new System.Drawing.Point(405, 440);
+            this.labeloffice.Location = new System.Drawing.Point(714, 228);
             this.labeloffice.Name = "labeloffice";
             this.labeloffice.Size = new System.Drawing.Size(39, 13);
             this.labeloffice.TabIndex = 53;
@@ -302,43 +300,33 @@ namespace Deployer
             this.panelMainPanel.Size = new System.Drawing.Size(949, 703);
             this.panelMainPanel.TabIndex = 21;
             // 
-            // txtboxPathFileLocation
-            // 
-            this.txtboxPathFileLocation.Location = new System.Drawing.Point(165, 11);
-            this.txtboxPathFileLocation.Name = "txtboxPathFileLocation";
-            this.txtboxPathFileLocation.Size = new System.Drawing.Size(515, 20);
-            this.txtboxPathFileLocation.TabIndex = 33;
-            this.txtboxPathFileLocation.Tag = "Enter Paths.txt *path* full here";
-            this.txtboxPathFileLocation.TextChanged += new System.EventHandler(this.txtboxPathFileLocation_TextChanged);
-            this.txtboxPathFileLocation.MouseMove += new System.Windows.Forms.MouseEventHandler(this.textBox_MouseMove);
-            // 
             // labelPathFile
             // 
             this.labelPathFile.AutoSize = true;
-            this.labelPathFile.Location = new System.Drawing.Point(15, 14);
+            this.labelPathFile.Location = new System.Drawing.Point(9, 754);
             this.labelPathFile.Name = "labelPathFile";
             this.labelPathFile.Size = new System.Drawing.Size(120, 13);
-            this.labelPathFile.TabIndex = 39;
+            this.labelPathFile.TabIndex = 58;
             this.labelPathFile.Text = "Paths  File Location";
-            // 
-            // panelPathsPanel
-            // 
-            this.panelPathsPanel.Controls.Add(this.labelPathFile);
-            this.panelPathsPanel.Controls.Add(this.txtboxPathFileLocation);
-            this.panelPathsPanel.Location = new System.Drawing.Point(12, 13);
-            this.panelPathsPanel.Name = "panelPathsPanel";
-            this.panelPathsPanel.Size = new System.Drawing.Size(692, 41);
-            this.panelPathsPanel.TabIndex = 22;
             // 
             // textBoxDateTime
             // 
             this.textBoxDateTime.Enabled = false;
-            this.textBoxDateTime.Location = new System.Drawing.Point(12, 4);
+            this.textBoxDateTime.Location = new System.Drawing.Point(1, 800);
             this.textBoxDateTime.MaxLength = 50;
             this.textBoxDateTime.Name = "textBoxDateTime";
             this.textBoxDateTime.ReadOnly = true;
             this.textBoxDateTime.Size = new System.Drawing.Size(166, 20);
-            this.textBoxDateTime.TabIndex = 56;
+            this.textBoxDateTime.TabIndex = 59;
+            // 
+            // txtboxInstallsPath
+            // 
+            this.txtboxInstallsPath.Location = new System.Drawing.Point(167, 751);
+            this.txtboxInstallsPath.Name = "txtboxInstallsPath";
+            this.txtboxInstallsPath.Size = new System.Drawing.Size(515, 20);
+            this.txtboxInstallsPath.TabIndex = 57;
+            this.txtboxInstallsPath.Tag = "Enter Paths.txt *path* full here";
+            this.txtboxInstallsPath.TextChanged += new System.EventHandler(this.txtboxInstallsPath_TextChanged);
             // 
             // Deployer
             // 
@@ -347,9 +335,10 @@ namespace Deployer
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.LightSlateGray;
-            this.ClientSize = new System.Drawing.Size(970, 720);
+            this.ClientSize = new System.Drawing.Size(962, 823);
+            this.Controls.Add(this.labelPathFile);
             this.Controls.Add(this.textBoxDateTime);
-            this.Controls.Add(this.panelPathsPanel);
+            this.Controls.Add(this.txtboxInstallsPath);
             this.Controls.Add(this.panelMainPanel);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -357,8 +346,6 @@ namespace Deployer
             this.Text = "Deployer";
             this.panelMainPanel.ResumeLayout(false);
             this.panelMainPanel.PerformLayout();
-            this.panelPathsPanel.ResumeLayout(false);
-            this.panelPathsPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -386,10 +373,9 @@ namespace Deployer
         private System.Windows.Forms.Button buttonRandomWRDport;
         private System.Windows.Forms.CheckBox checkBoxScanLan;
         private System.Windows.Forms.Panel panelMainPanel;
-        private System.Windows.Forms.TextBox txtboxPathFileLocation;
         private System.Windows.Forms.Label labelPathFile;
-        private System.Windows.Forms.Panel panelPathsPanel;
         private System.Windows.Forms.TextBox textBoxDateTime;
+        private System.Windows.Forms.TextBox txtboxInstallsPath;
     }
 }
 

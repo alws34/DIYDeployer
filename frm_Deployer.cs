@@ -2,49 +2,52 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Threading;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
 using System.Data.OleDb;
+using System.Text.RegularExpressions;
 
 namespace Deployer
 {
-    
-    public partial class Deployer : Form
-    {     
-        string conSTR =  @"Microsoft.ACE.OLEDB.12.0; Data Source =| DataDirectory |\SilentSwitchedDB.accdb";
-        private static string General = "";
-        private static string PCcare = "";
-        private static string Office = "";
-        private static string GamingPlatforms = "";
-        private static string Programming = "";
-        private static string Drivers = "";
-        private static string RegistyHacks = "";
-        private static string SilentInstallsArguments = "";
-        private static string SilentInstalls = "";
-        private static string bat_path = "";
-        private static string restartAfterFinish = "";
-        private string pathsFileLocation = @"";// = @"C:\Users\alws3\Desktop\Installs\Paths.txt";
 
-        private string[] paths = { General, PCcare, Programming, GamingPlatforms, Office, Drivers, RegistyHacks, SilentInstallsArguments, SilentInstalls, bat_path, restartAfterFinish };
+    public partial class Deployer : Form
+    {
+        /*********/
+        /*Fields**/
+        /*********/
+        string connSTR = @"Microsoft.ACE.OLEDB.12.0; Data Source =| DataDirectory |\SilentSwitchedDB.accdb";
+        //private static string General = "";
+        //private static string PCcare = "";
+        //private static string Office = "";
+        //private static string GamingPlatforms = "";
+        //private static string Programming = "";
+        //private static string Drivers = "";
+        //private static string RegistyHacks = "";
+        //private static string SilentInstallsArguments = "";
+        //private static string SilentInstalls = "";
+        //private static string bat_path = "";
+        //private static string restartAfterFinish = "";
+        //private string pathsFileLocation = @"";// = @"C:\Users\alws3\Desktop\Installs\Paths.txt";
+
+        //private string[] paths = { General, PCcare, Programming, GamingPlatforms, Office, Drivers, RegistyHacks, SilentInstallsArguments, SilentInstalls, bat_path, restartAfterFinish };
         private string[] programsToInstall = new string[100];
         private int programsToInstallcounter = 0;
         bool isPortAvailable = true;
         Process installBatch;
+        private string installations;
 
-        [Obsolete]
         public Deployer()
         {
             InitializeComponent();
             btnInstall.Enabled = false;
             textBoxWrdPort.Enabled = false;
-            panelMainPanel.Hide();
-            buttonRandomWRDport.Hide();
         }
 
-        private void createcheckBoxes(string path, FlowLayoutPanel flowLayoutPanel)//create checkboxes
+        /*********/
+        /*Methods*/
+        /*********/
+        private void createcheckBoxes(string path, FlowLayoutPanel flpl)//create checkboxes
         {
             try
             {
@@ -71,9 +74,9 @@ namespace Deployer
                             chckbox.Tag = path + programName;
                             chckbox.Text = chckboxText;
                             chckbox.CheckedChanged += new EventHandler(checkBox_CheckChanged);
-                            flowLayoutPanel.Controls.Add(chckbox);
+                            flp.Controls.Add(chckbox);
                         }
-                        
+
                     }
                 }
             }
@@ -106,98 +109,113 @@ namespace Deployer
             }
         }
 
-        private void install(object sender, EventArgs e)//install button event
+        private void install(object sender, EventArgs e)//start install 
         {
-            try
-            {
-                if (pathsFileLocation != null)
-                {
-                    string[] silentinstallsArguments = File.ReadAllLines(paths[7]).ToArray();
-                    string[] silentinstalls = File.ReadAllLines(paths[8]).ToArray();
-                    using (StreamWriter w = new StreamWriter(paths[9]))
-                    {
-                        foreach (var item in programsToInstall)
-                        {
-                            int counter = 0;
-                            for (int i = 0; i < silentinstalls.Length; i++)
-                            {
-                                if (silentinstalls[i] == item && counter == 0)
-                                {
-                                    w.WriteLine(silentinstallsArguments[i]);
-                                    counter++;
-                                }
-                            }
-                            if (counter == 0)
-                                w.WriteLine(item);
-                        }
-                        if (checkBoxDrivers.Checked)//add open drivers folder to the installation file
-                        {
-                            if (paths[5].Contains("Drivers"))
-                                w.WriteLine("explorer " + paths[5]);
-                            else
-                                showErrorMessage("no Drivers path was found! check your\nPaths.txt file\n-@install");
-                        }
-                    }
-                    if (checkBoxRegistryHacks.Checked)//registry hacks
-                    {
-                        if (paths[6].Contains("RegistyHacks.bat"))
-                            System.Diagnostics.Process.Start(paths[6]);
-                        else
-                            showErrorMessage("no RegistyHacks.bat was found! check your\nPaths.txt file\n-@install");
-                    }
-                    if (paths[9].Contains("Deployer.bat"))
-                        using (installBatch = new Process())
-                        {
-                            installBatch.StartInfo.FileName = paths[9];
-                            installBatch.Start();
-                        }
-                    // System.Diagnostics.Process.Start(paths[9]);//start batch file for installations
-                    else
-                        showErrorMessage("no Deployer.bat file was found!\n-@install");
-                    if (installBatch.HasExited)//revise
-                    {
-                        DialogResult dialogResult = MessageBox.Show("Do you want to run the finalizing bat file?\nThe folowing things will happen:\n-power plans configuration\n-python updates and extra config\n-some websites will be opened (microsoft store use full download)\n-A restart timer for your choosing (input in ms)", "run restartAfterFinish.bat", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                        if (dialogResult == DialogResult.Yes)
-                        {
-                            System.Diagnostics.Process.Start(paths[10]); // start restartAfterFinish.bat on finish
-                        }
-                        else
-                            return;
-                    }
-                }
-            }
-            catch (IOException)
-            {
-                reenterPaths("IOException@install");
-            }
-            catch (SystemException)
-            {
-                reenterPaths("Please make sure none of the files are in use!\nSystemException@install");
-            }
+            //try
+            //{
+
+            //        string[] silentinstallsArguments = File.ReadAllLines(paths[7]).ToArray();
+            //        string[] silentinstalls = File.ReadAllLines(paths[8]).ToArray();
+            //        using (StreamWriter w = new StreamWriter(paths[9]))
+            //        {
+            //            foreach (var item in programsToInstall)
+            //            {
+            //                int counter = 0;
+            //                for (int i = 0; i < silentinstalls.Length; i++)
+            //                {
+            //                    if (silentinstalls[i] == item && counter == 0)
+            //                    {
+            //                        w.WriteLine(silentinstallsArguments[i]);
+            //                        counter++;
+            //                    }
+            //                }
+            //                if (counter == 0)
+            //                    w.WriteLine(item);
+            //            }
+            //            if (checkBoxDrivers.Checked)//add open drivers folder to the installation file
+            //            {
+            //                if (paths[5].Contains("Drivers"))
+            //                    w.WriteLine("explorer " + paths[5]);
+            //                else
+            //                    showErrorMessage("no Drivers path was found! check your\nPaths.txt file\n-@install");
+            //            }
+            //        }
+            //        if (checkBoxRegistryHacks.Checked)//registry hacks
+            //        {
+            //            if (paths[6].Contains("RegistyHacks.bat"))
+            //                System.Diagnostics.Process.Start(paths[6]);
+            //            else
+            //                showErrorMessage("no RegistyHacks.bat was found! check your\nPaths.txt file\n-@install");
+            //        }
+            //        if (paths[9].Contains("Deployer.bat"))
+            //            using (installBatch = new Process())
+            //            {
+            //                installBatch.StartInfo.FileName = paths[9];
+            //                installBatch.Start();
+            //            }
+            //        // System.Diagnostics.Process.Start(paths[9]);//start batch file for installations
+            //        else
+            //            showErrorMessage("no Deployer.bat file was found!\n-@install");
+            //        if (installBatch.HasExited)//revise
+            //        {
+            //            DialogResult dialogResult = MessageBox.Show("Do you want to run the finalizing bat file?\nThe folowing things will happen:\n-power plans configuration\n-python updates and extra config\n-some websites will be opened (microsoft store use full download)\n-A restart timer for your choosing (input in ms)", "run restartAfterFinish.bat", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            //            if (dialogResult == DialogResult.Yes)
+            //            {
+            //                System.Diagnostics.Process.Start(paths[10]); // start restartAfterFinish.bat on finish
+            //            }
+            //            else
+            //                return;
+            //        }
+            //}
+            //catch (IOException)
+            //{
+            //    reenterPaths("IOException@install");
+            //}
+            //catch (SystemException)
+            //{
+            //    reenterPaths("Please make sure none of the files are in use!\nSystemException@install");
+            //}
         }
 
-        private void txtboxPathFileLocation_TextChanged(object sender, EventArgs e)//paths validation and initialization
+        private void reenterPaths(string location)//re enter paths for invalid input
+        {
+            txtboxInstallsPath.Text = "";
+            btnInstall.Enabled = false;
+            showErrorMessage("one of the files was not found.\nplease check Paths.txt for valid paths\n-" + location);
+        }
+
+        private void showErrorMessage(string message)//critical error message
+        {
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void setInstallations()
         {
             try
             {
-                if (!(string.IsNullOrEmpty(txtboxPathFileLocation.Text)) && txtboxPathFileLocation.Text.Contains("Paths.txt"))
+                installations = txtboxInstallsPath.Text;
+                Regex Path_regex = new Regex(@"[A-Za-z]{1}:\\[\s\S\d]*");//accept only paths eg: c:\..\..\.. 
+                Match match = Path_regex.Match(installations);
+                if (match.Success)
                 {
-                    panelPathsPanel.Hide();
-                    panelMainPanel.Show();
                     btnInstall.Enabled = true;
-                    pathsFileLocation = txtboxPathFileLocation.Text;
-                    string[] pathsfile = File.ReadAllLines(pathsFileLocation).ToArray();
-                    if (paths.Length == pathsfile.Length)
+                    //createcheckBoxes(string path, FlowLayoutPanel flowLayoutPanel)
+                    string[] subdirectories = Directory.GetDirectories(installations);
+                    FlowLayoutPanel fpl;
+                    foreach (string dir in subdirectories)
                     {
-                        for (int i = 0; i < paths.Length; i++)
+                      string[] files = Directory.GetFiles(dir);
+                      foreach(string file in files)
                         {
-                            paths[i] = pathsfile[i];
+                            if (dir.Contains("General"))
+                                flp = flowLayoutGeneralPrograms;
                         }
-                        FlowLayoutPanel[] flp = { flowLayoutGeneralPrograms, flowLayoutPanelPcCare, flowLayoutPanelProgramming, flowLayoutPanelGamingPlatforms, flowLayoutPanelOffice };
-                        for (int i = 0; i < flp.Length; i++)
-                        {
-                            createcheckBoxes(paths[i], flp[i]);
-                        }
+                    }
+
+
+                    for (int i = 0; i < flp.Length; i++)
+                    {
+                        createcheckBoxes(paths[i], flp[i]);
                     }
                 }
             }
@@ -209,6 +227,14 @@ namespace Deployer
             {
                 reenterPaths("IOException@txtboxPathFileLocation_TextChanged");
             }
+        }
+
+        /*********/
+        /*Events*/
+        /*********/
+        private void txtboxInstallsPath_TextChanged(object sender, EventArgs e)//paths validation and initialization
+        {
+            setInstallations();
         }
 
         private void textBoxWrdPort_KeyPress(object sender, KeyPressEventArgs e)//port textbox accept only numbers
@@ -282,21 +308,6 @@ namespace Deployer
             }
         }
 
-        private void reenterPaths(string location)//re enter paths for invalid input
-        {
-            txtboxPathFileLocation.Text = "";
-            panelPathsPanel.Show();
-            panelMainPanel.Hide();
-            btnInstall.Enabled = false;
-            showErrorMessage("one of the files was not found.\nplease check Paths.txt for valid paths\n-" + location);
-        }
-
-        private void showErrorMessage(string message)//critical error message
-        {
-            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //Application.Exit();
-        }
-
         private void time_Tick(object sender, EventArgs e)
         {
             textBoxDateTime.Text = DateTime.Now.ToString();
@@ -319,13 +330,13 @@ namespace Deployer
 
         private void buttonRandomWRDport_Click(object sender, EventArgs e)
         {
-            int randPort = new Random().Next(34568 , 65535);
+            int randPort = new Random().Next(34568, 65535);
             textBoxWrdPort.Text = randPort.ToString();
         }
 
         private void checkBoxScanLan_CheckStateChanged(object sender, EventArgs e)
         {
-            if(checkBoxScanLan.Checked)
+            if (checkBoxScanLan.Checked)
             {
                 frmLanScanner subscan = new frmLanScanner();
             }
