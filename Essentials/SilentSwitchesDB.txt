@@ -1,0 +1,27 @@
+7zip.exe^/S
+AdobeAcrobatReaderDC.exe^/sAll /rs
+jdk-15.0.1.exe^/s
+jdk-8u111.exe^/s
+angryIP.exe^/VERYSILENT /NORESTART
+Discord.exe^-s
+VLC.exe^/S
+notepad++.exe^/S
+OBS.exe^/S
+teracopy.exe^/silent /norestart
+TeamViewer.exe^/S /norestart
+spybot.exe^/SP- /VERYSILENT /NORESTART
+hwmonitor.exe^/silent
+MSIAfterburnerSetup.exe^/S
+allwaySync.exe^/verysilent /norestart
+Chrome.exe^/silent /install
+Picasa.exe^/S /L
+SSMS.exe^/install /quiet /norestart
+Everything.exe^/S
+FileZilla.exe^/S
+putty.msi^/SP- /VERYSILENT /NORESTART
+Teams.exe^-s
+Zoom.msi^msiexec /i ZoomInstallerFull.msi /quiet /qn /norestart /log install.log
+AnyDesk.msi^AnyDesk.exe --install ""C:\ProgramFiles\AnyDesk\"" --start-with-win --silent --create-shortcuts --create-desktop-icon^
+SQL2019.exe^/Q
+VSCode.exe^/VERYSILENT
+vs_community_2019.exe^--quiet

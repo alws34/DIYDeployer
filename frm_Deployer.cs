@@ -5,9 +5,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Net.NetworkInformation;
-using System.Data.OleDb;
 using System.Text.RegularExpressions;
-using System.Data;
 
 namespace Deployer
 {
@@ -17,28 +15,12 @@ namespace Deployer
         /*********/
         /*Fields**/
         /*********/
-
-        //private static string General = "";
-        //private static string PCcare = "";
-        //private static string Office = "";
-        //private static string GamingPlatforms = "";
-        //private static string Programming = "";
-        //private static string Drivers = "";
-        //private static string RegistyHacks = "";
-        //private static string silent_install_switchesArguments = "";
-        //private static string silent_install_switches = "";
-        //private static string bat_path = "";
-        //private static string restartAfterFinish = "";
-        //private string pathsFileLocation = @"";// = @"C:\Users\alws3\Desktop\Installs\Paths.txt";
-
-        //private string[] paths = { General, PCcare, Programming, GamingPlatforms, Office, Drivers, RegistyHacks, silent_install_switchesArguments, silent_install_switches, bat_path, restartAfterFinish };
-        private string connSTR = @"Microsoft.ACE.OLEDB.12.0; Data Source =| DataDirectory |\SilentSwitchedDB.accdb";
         private string DeployerScript;
         private string installationsPath;
-        private string[] programsToInstall = new string[100];
-        private int programsToInstallcounter = 0;
-        bool isPortAvailable = true;
-        Process installBatch;
+        private List<string> programsToInstall = new List<string>();
+        private List<string> files = new List<string>(); // all programs and files within the installations path
+        private bool isPortAvailable = true;
+        private Process installBatch;
 
         public Deployer()
         {
@@ -62,6 +44,8 @@ namespace Deployer
                     string delimiter = path;
                     string exe = ".exe";
                     string msi = ".msi";
+                    CheckBox[] checkBoxes = new CheckBox[100];
+                    int counter = 0;
                     foreach (string fileName in Directory.GetFiles(path))//get all files in directory
                     {
                         programName = fileName.Replace(delimiter, "");
@@ -73,10 +57,16 @@ namespace Deployer
                             CheckBox chckbox = new CheckBox();
                             chckbox.Name = programName;
                             chckbox.Tag = path + programName;
-                            chckbox.Text = chckboxText;
+                            chckbox.Text = chckboxText.Replace(@"\", "");
                             chckbox.CheckedChanged += new EventHandler(checkBox_CheckChanged);
-                            flpl.Controls.Add(chckbox);
+                            checkBoxes[counter] = chckbox;
+                            counter++;
                         }
+                        //FlowLayoutPanel flp = new FlowLayoutPanel();
+                        //flp.Visible = true;
+                        //flp.BorderStyle = BorderStyle.Fixed3D;
+                        //flp.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+                        flpl.Controls.AddRange(checkBoxes);
                     }
                 }
             }
@@ -97,7 +87,7 @@ namespace Deployer
                 {
                     btnInstall.Enabled = true;
                     string[] subdirectories = Directory.GetDirectories(installationsPath);
-                    string[] files = Directory.GetFiles(installationsPath, "*ProfileHandler.cs");
+                    files.AddRange(Directory.GetFiles(installationsPath, ".", SearchOption.AllDirectories));// get array of all files in the folder
                     if (!(File.Exists(installationsPath + @"\Deplyer.bat")))//if deployer.bat NOT exists
                     {
                         File.Create(installationsPath + @"\Deplyer.bat");
@@ -110,9 +100,8 @@ namespace Deployer
 
                     foreach (string dir in subdirectories)
                     {
-                        FlowLayoutPanel flp = new FlowLayoutPanel();
-                        createcheckBoxes(dir, flp);
-                        panelMainPanel.Controls.Add(flp);
+                        createcheckBoxes(dir, flp_main);
+                        flp_main.Visible = true;
                     }
                 }
             }
@@ -129,82 +118,90 @@ namespace Deployer
                 reenterPaths("IOException@setPanels");
             }
         }
-        private DataTable getData()//get silent install switches from DB
+
+        private string GetSilentSwitches(string program)//get silent install switches from DB
         {
-            string strSQL = "SELECT * FROM Switches";
-            OleDbConnection myConn = new OleDbConnection(connSTR);
-            OleDbDataAdapter myCmd = new OleDbDataAdapter(strSQL, myConn);
-            myConn.Open();
-            DataSet dtSet = new DataSet();
-            myCmd.Fill(dtSet, "Silent Switches");
-            DataTable dTable = dtSet.Tables[0];
-            myConn.Close();
-            return dTable;
+            string DBpath = installationsPath + @"\SilentSwitchesDB.txt";
+
+            using (StreamReader sr = new StreamReader(DBpath))
+            {
+                char delimiter = '^';
+                string line = sr.ReadLine();
+                while (sr.ReadLine() != null)
+                {
+                    string program_name = line.Split(delimiter).First();
+                    string silentswitch = line.Split(delimiter).Last();
+                    if (program.Contains(program_name))
+                        return silentswitch;// returns a path
+                    return null;//if program wasnt found in db
+                }
+                return null;
+            }
         }
-        private void install(object sender, EventArgs e)//start install 
+
+        private void startInstall()
         {
             try
             {
-                DataTable switches = getData();
-
-                using (StreamWriter w = new StreamWriter(DeployerScript))
+                if (File.Exists(DeployerScript))
                 {
-                    foreach (var item in programsToInstall)
+                    using (StreamWriter w = new StreamWriter(DeployerScript))
                     {
-                        int counter = 0;
-                        for (int i = 0; i < silent_install_switches.Length; i++)
+                        List<string> nonsilents = new List<string>(); ;
+                        foreach (string program in programsToInstall)
                         {
-                            if (silent_install_switches[i] == item && counter == 0)
+                            string silentswitch = GetSilentSwitches(program);
+                            if (silentswitch != null)//if silent switch was found
                             {
-                                w.WriteLine(silent_install_switchesArguments[i]);
-                                counter++;
+                                w.WriteLine(program + " " + silentswitch); // write all silents first 
+                            }
+                            else
+                            {
+                                nonsilents.Add(program);//add to non silents array
                             }
                         }
-                        if (counter == 0)
-                            w.WriteLine(item);
+                        foreach (string program in nonsilents)//than write all nonsilents (for order of installation)
+                        {
+                            w.WriteLine(program);
+                        }
+                        if (checkBoxDrivers.Checked)//add open drivers folder to the installation file
+                        {
+                            string drivers_folder = installationsPath + @"\Drivers";
+                            w.WriteLine("explorer " + drivers_folder);
+                        }
+                        if (checkBoxRegistryHacks.Checked)//add registry hacks to installations batch
+                        {
+                            string reghacks = installationsPath + @"\RegistryHacks\RegistyHacks.bat";
+                            w.WriteLine(reghacks);
+                        }
+                        w.Close();
+                        using (installBatch = new Process())//run batch file
+                        {
+                            installBatch.StartInfo.FileName = DeployerScript;
+                            installBatch.Start();
+                        }
+                        finishInstall();
                     }
-                    if (checkBoxDrivers.Checked)//add open drivers folder to the installation file
-                    {
-                        if (paths[5].Contains("Drivers"))
-                            w.WriteLine("explorer " + paths[5]);
-                        else
-                            showErrorMessage("no Drivers path was found! check your\nPaths.txt file\n-@install");
-                    }
-                }
-                if (checkBoxRegistryHacks.Checked)//registry hacks
-                {
-                    if (paths[6].Contains("RegistyHacks.bat"))
-                        System.Diagnostics.Process.Start(paths[6]);
-                    else
-                        showErrorMessage("no RegistyHacks.bat was found! check your\nPaths.txt file\n-@install");
-                }
-                if (DeployerScript)
-                    using (installBatch = new Process())
-                    {
-                        installBatch.StartInfo.FileName = DeployerScript;
-                        installBatch.Start();
-                    }
-                // System.Diagnostics.Process.Start(DeployerScript);//start batch file for installationsPath
-                else
-                    showErrorMessage("no Deployer.bat file was found!\n-@install");
-                if (installBatch.HasExited)//revise
-                {
-                    DialogResult dialogResult = MessageBox.Show("Do you want to run the finalizing bat file?\nThe folowing things will happen:\n-power plans configuration\n-python updates and extra config\n-some websites will be opened (microsoft store use full download)\n-A restart timer for your choosing (input in ms)", "run restartAfterFinish.bat", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                    if (dialogResult == DialogResult.Yes)
-                    {
-                        System.Diagnostics.Process.Start(paths[10]); // start restartAfterFinish.bat on finish
-                    }
-                    else
-                        return;
                 }
             }
-            catch (Exception)
+            catch (Exception excep)
             {
-                reenterPaths("Exception@install");
+                showErrorMessage(excep.ToString());
             }
         }
 
-        private void setWRDPort()
+        private void finishInstall()//finalize
+        {
+            DialogResult dialogResult = MessageBox.Show("Do you want to run the finalizing bat file?\nThe folowing things will happen:\n-power plans configuration\n-python updates and extra config\n-some websites will be opened (microsoft store use full download)\n-A restart timer for your choosing (input in ms)", "run restartAfterFinish.bat", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (dialogResult == DialogResult.Yes)
+            {
+                Process.Start(installationsPath + @"\restartAfterFinish.bat"); // start restartAfterFinish.bat on finish
+            }
+            else
+                Dispose();//just exit
+        }
+
+        private void setWRDPort()// set WRD port
         {
             try
             {
@@ -247,67 +244,70 @@ namespace Deployer
                     }
                 }
             }
-            catch (FormatException)
+            catch (Exception e)
             {
                 if (string.IsNullOrEmpty(textBoxWrdPort.Text))
                     return;
+                else
+                    showErrorMessage(e.ToString() + "\n-@install");
             }
         }
+
         private void reenterPaths(string location)//re enter paths for invalid input
         {
             txtboxInstallsPath.Text = "";
             btnInstall.Enabled = false;
             showErrorMessage("please check your Paths for valid paths\n-" + location);
         }
+
         private void showErrorMessage(string message)//critical error message
         {
             MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+
         private void setDeployerPath()//set the deployer.bat path
         {
             DeployerScript = installationsPath + @"\Deplyer.bat";
         }
+
+        private void reset()
+        {
+            Deployer d = new Deployer(); // start new instance
+            d.Show();
+            Dispose();//remove current instance
+        }//reset the form
+
+
         /*********/
         /*Events*/
         /*********/
+        private void install(object sender, EventArgs e)//start install 
+        {
+            startInstall();
+        }
 
         private void checkBox_CheckChanged(object sender, EventArgs e)//add program to the installation array
         {
             CheckBox chckbox = sender as CheckBox;
-            string programName = chckbox.Name;//Tag.ToString();
+            string programName = chckbox.Name;
             string programPath = chckbox.Tag.ToString();
             if (chckbox.Checked)//add program
             {
-                programsToInstall[programsToInstallcounter] = programPath;
-                programsToInstallcounter++;
+                programsToInstall.Add(programPath);
             }
             else//remove program from array (later will be written to the batch file for execute
             {
-                for (int i = 0; i < programsToInstall.Length; i++)
+                for (int i = 0; i < programsToInstall.Count; i++)
                 {
-                    if (programsToInstall[i] == programName)
+                    if (programsToInstall[i] == programPath)
                     {
-                        programsToInstall[i] = null;
-                        programsToInstall = programsToInstall.Except(new List<string> { string.Empty }).ToArray();
+                        //programsToInstall[i] = "";
+                        programsToInstall.RemoveAt(i);
                     }
                 }
             }
         }
-        //foreach (FileInfo file in Directory.GetFiles(path))
-        //                        {
-        //                            if (file.Exists && file.Name.Contains("Deployer.bat"))
-        //                            {
-        //                                showErrorMessage("port is already taken.\nplease try again.");
-        //                                return;
-        //                            }
-        //                            else
-        //                            {
-        //                                using (StreamWriter w = new StreamWriter(file))
-        //                                {
-        //                                    w.WriteLine(changeWRDPort);
-        //                                }
-        //                            }
-        //                        }
+
         private void txtboxInstallsPath_TextChanged(object sender, EventArgs e)//paths validation and initialization
         {
             setPanels();
@@ -338,10 +338,10 @@ namespace Deployer
             setWRDPort();
         }
 
-        private void time_Tick(object sender, EventArgs e)
+        private void time_Tick(object sender, EventArgs e)//date and time
         {
             textBoxDateTime.Text = DateTime.Now.ToString();
-        }//date and time
+        }
 
         private void textBox_MouseMove(object sender, MouseEventArgs e)
         {
@@ -350,30 +350,21 @@ namespace Deployer
             toolTipdynamic.ToolTipTitle = textbox.Name;
         }//tooltip message
 
-        private void buttonReset_Click(object sender, EventArgs e)
+        private void buttonReset_Click(object sender, EventArgs e)//reset form
         {
-            Deployer d = new Deployer();
-            d.Show();
-            buttonRandomWRDport.Hide();
-            this.Hide();
+            reset();
         }
 
-        private void buttonRandomWRDport_Click(object sender, EventArgs e)
+        private void buttonRandomWRDport_Click(object sender, EventArgs e)//get random WRD port
         {
             int randPort = new Random().Next(34568, 65535);
             textBoxWrdPort.Text = randPort.ToString();
         }
 
-        private void checkBoxScanLan_CheckStateChanged(object sender, EventArgs e)
+        private void btnLanScan_Click(object sender, EventArgs e)//get lan scanner form
         {
-            if (checkBoxScanLan.Checked)
-            {
-                frmLanScanner subscan = new frmLanScanner();
-            }
-            else
-            {
-                return;
-            }
+            frmLanScanner subscan = new frmLanScanner();
         }
+
     }
 }
