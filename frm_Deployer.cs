@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.IO;
 using System.Diagnostics;
-using System.Windows.Forms;
+using System.IO;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace Deployer
 {
@@ -17,10 +17,9 @@ namespace Deployer
         /*********/
         private string DeployerScript;
         private string installationsPath;
-        private List<string> programsToInstall = new List<string>();
-        private List<string> files = new List<string>(); // all programs and files within the installations path
         private bool isPortAvailable = true;
-        private Process installBatch;
+        private List<string> programsToInstall = new List<string>(); //list of intended programs to install
+        //private List<string> files = new List<string>(); //list all programs and files within the installations path
 
         public Deployer()
         {
@@ -44,7 +43,7 @@ namespace Deployer
                     string delimiter = path;
                     string exe = ".exe";
                     string msi = ".msi";
-                    CheckBox[] checkBoxes = new CheckBox[100];
+                    CheckBox[] checkBoxes = new CheckBox[100];//TODO
                     int counter = 0;
                     foreach (string fileName in Directory.GetFiles(path))//get all files in directory
                     {
@@ -87,7 +86,7 @@ namespace Deployer
                 {
                     btnInstall.Enabled = true;
                     string[] subdirectories = Directory.GetDirectories(installationsPath);
-                    files.AddRange(Directory.GetFiles(installationsPath, ".", SearchOption.AllDirectories));// get array of all files in the folder
+                    //files.AddRange(Directory.GetFiles(installationsPath, ".", SearchOption.AllDirectories));// get array of all files in the folder
                     if (!(File.Exists(installationsPath + @"\Deplyer.bat")))//if deployer.bat NOT exists
                     {
                         File.Create(installationsPath + @"\Deplyer.bat");
@@ -139,8 +138,9 @@ namespace Deployer
             }
         }
 
-        private void startInstall()
+        private void startInstall()//start installation
         {
+            Process installBatch;
             try
             {
                 if (File.Exists(DeployerScript))
@@ -180,13 +180,31 @@ namespace Deployer
                             installBatch.StartInfo.FileName = DeployerScript;
                             installBatch.Start();
                         }
-                        finishInstall();
+                        if (installBatch.HasExited)
+                            finishInstall();
                     }
                 }
             }
-            catch (Exception excep)
+            catch (System.ComponentModel.Win32Exception w32)
             {
-                showErrorMessage(excep.ToString());
+                finishInstall();
+                showErrorMessage(w32.ToString() + "\n@install");
+            }
+            catch (ArgumentNullException ane)
+            {
+                showErrorMessage(ane.ToString() + "\n@install");
+            }
+            catch (IOException ioe)
+            {
+                reenterPaths(ioe.ToString() + "\n@install");
+            }
+            catch (ArgumentException ae)
+            {
+                showErrorMessage(ae.ToString() + "\n@install");
+            }
+            catch(System.Security.SecurityException se)
+            {
+                showErrorMessage(se.ToString() + "\n@install");
             }
         }
 
@@ -270,14 +288,18 @@ namespace Deployer
             DeployerScript = installationsPath + @"\Deplyer.bat";
         }
 
-        private void reset()
+        private void reset()//reset the form
         {
             Deployer d = new Deployer(); // start new instance
             d.Show();
             Dispose();//remove current instance
-        }//reset the form
+        }
 
-
+        private void getRandomPort()//get random WRD port
+        {
+            int randPort = new Random().Next(34568, 65535);
+            textBoxWrdPort.Text = randPort.ToString();
+        }
         /*********/
         /*Events*/
         /*********/
@@ -357,14 +379,12 @@ namespace Deployer
 
         private void buttonRandomWRDport_Click(object sender, EventArgs e)//get random WRD port
         {
-            int randPort = new Random().Next(34568, 65535);
-            textBoxWrdPort.Text = randPort.ToString();
+            getRandomPort();
         }
 
         private void btnLanScan_Click(object sender, EventArgs e)//get lan scanner form
         {
             frmLanScanner subscan = new frmLanScanner();
         }
-
     }
 }
