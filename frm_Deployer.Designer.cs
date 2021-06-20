@@ -34,7 +34,6 @@ namespace Deployer
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Deployer));
             this.time = new System.Windows.Forms.Timer(this.components);
             this.toolTipdynamic = new System.Windows.Forms.ToolTip(this.components);
-            this.flp_main = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLanScan = new System.Windows.Forms.Button();
             this.textBoxDateTime = new System.Windows.Forms.TextBox();
             this.buttonRandomWRDport = new System.Windows.Forms.Button();
@@ -46,6 +45,7 @@ namespace Deployer
             this.btnInstall = new System.Windows.Forms.Button();
             this.labelPathFile = new System.Windows.Forms.Label();
             this.txtboxInstallsPath = new System.Windows.Forms.TextBox();
+            this.flp_main = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
             // time
@@ -58,13 +58,6 @@ namespace Deployer
             // 
             this.toolTipdynamic.IsBalloon = true;
             this.toolTipdynamic.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
-            // 
-            // flp_main
-            // 
-            this.flp_main.Location = new System.Drawing.Point(0, 0);
-            this.flp_main.Name = "flp_main";
-            this.flp_main.Size = new System.Drawing.Size(1386, 663);
-            this.flp_main.TabIndex = 0;
             // 
             // btnLanScan
             // 
@@ -174,10 +167,18 @@ namespace Deployer
             // 
             this.txtboxInstallsPath.Location = new System.Drawing.Point(168, 750);
             this.txtboxInstallsPath.Name = "txtboxInstallsPath";
-            this.txtboxInstallsPath.Size = new System.Drawing.Size(515, 20);
+            this.txtboxInstallsPath.Size = new System.Drawing.Size(385, 20);
             this.txtboxInstallsPath.TabIndex = 68;
             this.txtboxInstallsPath.Tag = "Enter Paths.txt *path* full here";
             this.txtboxInstallsPath.TextChanged += new System.EventHandler(this.txtboxInstallsPath_TextChanged);
+            // 
+            // flp_main
+            // 
+            this.flp_main.AutoScroll = true;
+            this.flp_main.Location = new System.Drawing.Point(4, 12);
+            this.flp_main.Name = "flp_main";
+            this.flp_main.Size = new System.Drawing.Size(1378, 656);
+            this.flp_main.TabIndex = 72;
             // 
             // Deployer
             // 
@@ -185,8 +186,9 @@ namespace Deployer
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackColor = System.Drawing.Color.LightSlateGray;
+            this.BackColor = System.Drawing.Color.LightGray;
             this.ClientSize = new System.Drawing.Size(1384, 831);
+            this.Controls.Add(this.flp_main);
             this.Controls.Add(this.btnLanScan);
             this.Controls.Add(this.textBoxDateTime);
             this.Controls.Add(this.buttonRandomWRDport);
@@ -198,7 +200,6 @@ namespace Deployer
             this.Controls.Add(this.btnInstall);
             this.Controls.Add(this.labelPathFile);
             this.Controls.Add(this.txtboxInstallsPath);
-            this.Controls.Add(this.flp_main);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Deployer";
@@ -211,7 +212,6 @@ namespace Deployer
         #endregion
         private System.Windows.Forms.Timer time;
         private System.Windows.Forms.ToolTip toolTipdynamic;
-        private System.Windows.Forms.FlowLayoutPanel flp_main;
         private System.Windows.Forms.Button btnLanScan;
         private System.Windows.Forms.TextBox textBoxDateTime;
         private System.Windows.Forms.Button buttonRandomWRDport;
@@ -223,6 +223,7 @@ namespace Deployer
         private System.Windows.Forms.Button btnInstall;
         private System.Windows.Forms.Label labelPathFile;
         private System.Windows.Forms.TextBox txtboxInstallsPath;
+        private System.Windows.Forms.FlowLayoutPanel flp_main;
     }
 }
 

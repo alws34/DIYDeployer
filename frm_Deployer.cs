@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -19,7 +20,7 @@ namespace Deployer
         private string installationsPath;
         private bool isPortAvailable = true;
         private List<string> programsToInstall = new List<string>(); //list of intended programs to install
-        //private List<string> files = new List<string>(); //list all programs and files within the installations path
+        ToolTip toolTip = new ToolTip();
 
         public Deployer()
         {
@@ -31,8 +32,12 @@ namespace Deployer
         /*********/
         /*Methods*/
         /*********/
-        private void createcheckBoxes(string path, FlowLayoutPanel flpl)//create checkboxes
+        private void createCheckBoxes(string path, FlowLayoutPanel flpl)
         {
+            /*
+             * TODO 
+             *FIX DUPLICATED CODE!!!
+            **/
             try
             {
                 FileAttributes attr = File.GetAttributes(path);
@@ -40,38 +45,90 @@ namespace Deployer
                 {
                     string programName = "";
                     string chckboxText = "";
-                    string delimiter = path;
-                    string exe = ".exe";
-                    string msi = ".msi";
-                    CheckBox[] checkBoxes = new CheckBox[100];//TODO
+
+                    string exe = ".exe";//prefix
+                    string msi = ".msi";//prefix
+                    List<CheckBox> checkboxlst = new List<CheckBox>();//checkboxes
+                    List<FlowLayoutPanel> flplst = new List<FlowLayoutPanel>();//flow layout panels list
+                    FlowLayoutPanel flp;
                     int counter = 0;
-                    foreach (string fileName in Directory.GetFiles(path))//get all files in directory
+                    string[] dirs = Directory.GetDirectories(path);
+                    foreach (string dir in Directory.GetDirectories(path))
                     {
-                        programName = fileName.Replace(delimiter, "");
-                        chckboxText = programName;
-                        if (!(fileName.Contains(".inf") || fileName.Contains(".ini")))
+                        if (!(dir.Contains("Drivers")) && !(dir.Contains("drivers")) && !(dir.Contains("OSs")) && !(dir.Contains("operating systems")) && !(dir.Contains("RegistryHacks")) && !(dir.Contains("RPi")) && !(dir.Contains("RPI")))
                         {
-                            if (programName.Contains(exe) || programName.Contains(msi))
-                                chckboxText = programName.Replace(exe, "").Replace(msi, "");
-                            CheckBox chckbox = new CheckBox();
-                            chckbox.Name = programName;
-                            chckbox.Tag = path + programName;
-                            chckbox.Text = chckboxText.Replace(@"\", "");
-                            chckbox.CheckedChanged += new EventHandler(checkBox_CheckChanged);
-                            checkBoxes[counter] = chckbox;
-                            counter++;
+                            List<string> files = new List<string>(); // list all files within the folder
+                            files.AddRange(Directory.GetFiles(path, "*.exe", SearchOption.AllDirectories));//add all exe files
+                            files.AddRange(Directory.GetFiles(path, "*.msi", SearchOption.AllDirectories));//add all msi files
+
+                            foreach (string fileName in files)
+                            {
+                                string delimiter = Path.GetDirectoryName(fileName); //delimiter will be the folder path
+                                if (fileName.Contains(exe) || fileName.Contains(msi))
+                                {
+                                    if (counter > 0 && checkboxlst != null)
+                                    {
+                                        programName = fileName.Replace(delimiter, "");
+                                        chckboxText = programName.Replace(exe, "").Replace(msi, "");
+                                        CheckBox chckbox = new CheckBox();
+                                        chckbox.Name = programName;
+                                        chckbox.Tag = path + programName;
+                                        chckbox.Text = chckboxText.Replace(@"\", "");
+                                        chckbox.CheckedChanged += new EventHandler(checkBox_CheckChanged);
+                                        toolTip.SetToolTip(chckbox, chckbox.Tag.ToString());
+
+                                        /*duplicants validation*/
+                                        int added = 0;
+                                        for (int i = 0; i < checkboxlst.Count; i++)
+                                        {
+                                            if (checkboxlst[i] != null && checkboxlst[i].Name == chckbox.Name)
+                                            {
+                                                added = 1;
+                                            }
+                                        }
+                                        if (added == 0)
+                                        {
+                                            checkboxlst.Add(chckbox);
+                                            counter++;
+                                        }
+                                        /*duplicants validation*/
+                                    }
+                                    else if (counter == 0)
+                                    {
+                                        programName = fileName.Replace(delimiter, "");
+                                        chckboxText = programName.Replace(exe, "").Replace(msi, "");
+                                        CheckBox chckbox = new CheckBox();
+                                        chckbox.Name = programName;
+                                        chckbox.Tag = path + programName;
+                                        chckbox.Text = chckboxText.Replace(@"\", "");
+                                        chckbox.CheckedChanged += new EventHandler(checkBox_CheckChanged);
+                                        toolTip.SetToolTip(chckbox, chckbox.Tag.ToString());
+                                        checkboxlst.Add(chckbox);
+                                        counter++;
+                                    }
+                                }
+                            }
+
+                            flp = new FlowLayoutPanel();//foreach directory create a flow layout panel to host its checkboxes
+                            flp.AutoScroll = true;
+                            flp.AutoSize = true;
+                            flp.BackColor = Color.White;
+
+                            foreach (CheckBox c in checkboxlst)
+                                flp.Controls.Add(c);
+
+                           if(flp.Controls.Count>=1) //dont add empty panels
+                                flpl.Controls.Add(flp);
                         }
-                        //FlowLayoutPanel flp = new FlowLayoutPanel();
-                        //flp.Visible = true;
-                        //flp.BorderStyle = BorderStyle.Fixed3D;
-                        //flp.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-                        flpl.Controls.AddRange(checkBoxes);
+
                     }
+                    //foreach (CheckBox c in checkboxlst)
+                    //    flpl.Controls.Add(c);
                 }
             }
-            catch (IOException ioException)
+            catch (Exception Exception)
             {
-                reenterPaths("createcheckBoxes says:" + ioException.ToString());
+                reenterPaths("createCheckBoxes says:" + Exception.ToString());
             }
         }
 
@@ -81,8 +138,12 @@ namespace Deployer
             {
                 installationsPath = txtboxInstallsPath.Text;
                 Regex Path_regex = new Regex(@"[A-Za-z]{1}:\\[\s\S\d]*");//accept only paths eg: c:\..\..\.. 
-                Match match = Path_regex.Match(installationsPath);
-                if (match.Success)
+                Regex Network_Path_regex = new Regex(@"(?:\\)[a-zA-Z]*");//to check if accept folder paths eg \\alws34cloud\..\..
+
+                Match matchpath = Path_regex.Match(installationsPath);
+                Match matchnetwork = Network_Path_regex.Match(installationsPath);
+
+                if (matchpath.Success || matchnetwork.Success)
                 {
                     btnInstall.Enabled = true;
                     string[] subdirectories = Directory.GetDirectories(installationsPath);
@@ -99,8 +160,7 @@ namespace Deployer
 
                     foreach (string dir in subdirectories)
                     {
-                        createcheckBoxes(dir, flp_main);
-                        flp_main.Visible = true;
+                        createCheckBoxes(dir, flp_main);
                     }
                 }
             }
@@ -180,8 +240,8 @@ namespace Deployer
                             installBatch.StartInfo.FileName = DeployerScript;
                             installBatch.Start();
                         }
-                        if (installBatch.HasExited)
-                            finishInstall();
+                        // if (!(installBatch.HasExited))
+                        finishInstall();
                     }
                 }
             }
@@ -202,7 +262,7 @@ namespace Deployer
             {
                 showErrorMessage(ae.ToString() + "\n@install");
             }
-            catch(System.Security.SecurityException se)
+            catch (System.Security.SecurityException se)
             {
                 showErrorMessage(se.ToString() + "\n@install");
             }
