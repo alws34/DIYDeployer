@@ -117,7 +117,7 @@ namespace Deployer
                             foreach (CheckBox c in checkboxlst)
                                 flp.Controls.Add(c);
 
-                           if(flp.Controls.Count>=1) //dont add empty panels
+                            if (flp.Controls.Count >= 1) //dont add empty panels
                                 flpl.Controls.Add(flp);
                         }
 
@@ -146,9 +146,9 @@ namespace Deployer
                 if (matchpath.Success || matchnetwork.Success)
                 {
                     btnInstall.Enabled = true;
-                    string[] subdirectories = Directory.GetDirectories(installationsPath);
-                    //files.AddRange(Directory.GetFiles(installationsPath, ".", SearchOption.AllDirectories));// get array of all files in the folder
-                    if (!(File.Exists(installationsPath + @"\Deplyer.bat")))//if deployer.bat NOT exists
+                    string[] subdirectories = Directory.GetDirectories(installationsPath); //list of all sub directories
+
+                    if (!(File.Exists(installationsPath + @"\Deplyer.bat")))//if deployer.bat does NOT exist, create it
                     {
                         File.Create(installationsPath + @"\Deplyer.bat");
                         setDeployerPath();
@@ -331,34 +331,40 @@ namespace Deployer
             }
         }
 
-        private void reenterPaths(string location)//re enter paths for invalid input
+        /*
+         *re enter paths for invalid input
+         */
+        private void reenterPaths(string location)
         {
             txtboxInstallsPath.Text = "";
             btnInstall.Enabled = false;
             showErrorMessage("please check your Paths for valid paths\n-" + location);
         }
 
-        private void showErrorMessage(string message)//critical error message
+        /*
+        *display critical error message
+        */
+        private void showErrorMessage(string message)
         {
             MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void setDeployerPath()//set the deployer.bat path
+        /*
+        *set the deployer.bat path
+        */
+        private void setDeployerPath()
         {
             DeployerScript = installationsPath + @"\Deplyer.bat";
         }
 
-        private void reset()//reset the form
+        /*
+         *get random WRD port
+         */
+        private void getRandomPort()
         {
-            Deployer d = new Deployer(); // start new instance
-            d.Show();
-            Dispose();//remove current instance
-        }
-
-        private void getRandomPort()//get random WRD port
-        {
-            int randPort = new Random().Next(34568, 65535);
-            textBoxWrdPort.Text = randPort.ToString();
+            // string randPort = new Random().Next(34568, 65535).ToString();
+            // textBoxWrdPort.Text = randPort.ToString();
+            textBoxWrdPort.Text = new Random().Next(34568, 65535).ToString();
         }
         /*********/
         /*Events*/
@@ -368,39 +374,56 @@ namespace Deployer
             startInstall();
         }
 
-        private void checkBox_CheckChanged(object sender, EventArgs e)//add program to the installation array
+        private void reset()//reset the form
+        {
+            Deployer d = new Deployer(); //start new instance
+            d.Show();
+            Dispose();//remove current instance
+        }
+
+        /*
+         * add program to the installation batch
+         */
+        private void checkBox_CheckChanged(object sender, EventArgs e)
         {
             CheckBox chckbox = sender as CheckBox;
-            string programName = chckbox.Name;
             string programPath = chckbox.Tag.ToString();
-            if (chckbox.Checked)//add program
+            if (chckbox.Checked)//if program is selected - add
             {
                 programsToInstall.Add(programPath);
             }
-            else//remove program from array (later will be written to the batch file for execute
+            else//remove program from array 
             {
                 for (int i = 0; i < programsToInstall.Count; i++)
                 {
                     if (programsToInstall[i] == programPath)
                     {
-                        //programsToInstall[i] = "";
                         programsToInstall.RemoveAt(i);
                     }
                 }
             }
         }
 
-        private void txtboxInstallsPath_TextChanged(object sender, EventArgs e)//paths validation and initialization
+        /*
+         *paths validation and initialization
+         */
+        private void txtboxInstallsPath_TextChanged(object sender, EventArgs e)
         {
             setPanels();
         }
 
-        private void textBoxWrdPort_KeyPress(object sender, KeyPressEventArgs e)//port textbox accept only numbers
+        /*
+         *port textbox to accept only numbers
+         **/
+        private void textBoxWrdPort_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
         }
 
-        private void checkBoxChangeWRDPort_CheckStateChanged(object sender, EventArgs e)//chackbox to add port
+        /*
+         * enable "add port" textbox
+         **/
+        private void checkBoxChangeWRDPort_CheckStateChanged(object sender, EventArgs e)
         {
             if (checkBoxChangeWRDPort.Checked)
             {
