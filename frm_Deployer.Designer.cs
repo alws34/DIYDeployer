@@ -61,9 +61,9 @@ namespace Deployer
             // 
             // btnLanScan
             // 
-            this.btnLanScan.Location = new System.Drawing.Point(551, 722);
+            this.btnLanScan.Location = new System.Drawing.Point(617, 513);
             this.btnLanScan.Name = "btnLanScan";
-            this.btnLanScan.Size = new System.Drawing.Size(95, 25);
+            this.btnLanScan.Size = new System.Drawing.Size(95, 45);
             this.btnLanScan.TabIndex = 71;
             this.btnLanScan.Text = "Lan scanner";
             this.btnLanScan.UseVisualStyleBackColor = true;
@@ -72,19 +72,19 @@ namespace Deployer
             // textBoxDateTime
             // 
             this.textBoxDateTime.Enabled = false;
-            this.textBoxDateTime.Location = new System.Drawing.Point(4, 807);
+            this.textBoxDateTime.Location = new System.Drawing.Point(3, 581);
             this.textBoxDateTime.MaxLength = 50;
             this.textBoxDateTime.Name = "textBoxDateTime";
             this.textBoxDateTime.ReadOnly = true;
-            this.textBoxDateTime.Size = new System.Drawing.Size(166, 20);
+            this.textBoxDateTime.Size = new System.Drawing.Size(166, 23);
             this.textBoxDateTime.TabIndex = 70;
             // 
             // buttonRandomWRDport
             // 
             this.buttonRandomWRDport.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.buttonRandomWRDport.Location = new System.Drawing.Point(551, 693);
+            this.buttonRandomWRDport.Location = new System.Drawing.Point(619, 481);
             this.buttonRandomWRDport.Name = "buttonRandomWRDport";
-            this.buttonRandomWRDport.Size = new System.Drawing.Size(75, 23);
+            this.buttonRandomWRDport.Size = new System.Drawing.Size(93, 23);
             this.buttonRandomWRDport.TabIndex = 67;
             this.buttonRandomWRDport.Text = "Random Port";
             this.buttonRandomWRDport.UseVisualStyleBackColor = true;
@@ -92,7 +92,7 @@ namespace Deployer
             // 
             // buttonReset
             // 
-            this.buttonReset.Location = new System.Drawing.Point(5, 674);
+            this.buttonReset.Location = new System.Drawing.Point(4, 448);
             this.buttonReset.Name = "buttonReset";
             this.buttonReset.Size = new System.Drawing.Size(95, 25);
             this.buttonReset.TabIndex = 66;
@@ -103,9 +103,9 @@ namespace Deployer
             // textBoxWrdPort
             // 
             this.textBoxWrdPort.BackColor = System.Drawing.Color.White;
-            this.textBoxWrdPort.Location = new System.Drawing.Point(551, 669);
+            this.textBoxWrdPort.Location = new System.Drawing.Point(619, 444);
             this.textBoxWrdPort.Name = "textBoxWrdPort";
-            this.textBoxWrdPort.Size = new System.Drawing.Size(93, 20);
+            this.textBoxWrdPort.Size = new System.Drawing.Size(93, 23);
             this.textBoxWrdPort.TabIndex = 65;
             this.textBoxWrdPort.Tag = "Port number between 34568 and 65535";
             this.textBoxWrdPort.TextChanged += new System.EventHandler(this.textBoxWrdPort_TextChanged);
@@ -114,9 +114,9 @@ namespace Deployer
             // checkBoxChangeWRDPort
             // 
             this.checkBoxChangeWRDPort.AutoSize = true;
-            this.checkBoxChangeWRDPort.Location = new System.Drawing.Point(415, 672);
+            this.checkBoxChangeWRDPort.Location = new System.Drawing.Point(452, 446);
             this.checkBoxChangeWRDPort.Name = "checkBoxChangeWRDPort";
-            this.checkBoxChangeWRDPort.Size = new System.Drawing.Size(130, 17);
+            this.checkBoxChangeWRDPort.Size = new System.Drawing.Size(161, 21);
             this.checkBoxChangeWRDPort.TabIndex = 64;
             this.checkBoxChangeWRDPort.Text = "Change WRD Port";
             this.checkBoxChangeWRDPort.UseVisualStyleBackColor = true;
@@ -125,9 +125,9 @@ namespace Deployer
             // checkBoxRegistryHacks
             // 
             this.checkBoxRegistryHacks.AutoSize = true;
-            this.checkBoxRegistryHacks.Location = new System.Drawing.Point(270, 709);
+            this.checkBoxRegistryHacks.Location = new System.Drawing.Point(269, 483);
             this.checkBoxRegistryHacks.Name = "checkBoxRegistryHacks";
-            this.checkBoxRegistryHacks.Size = new System.Drawing.Size(108, 17);
+            this.checkBoxRegistryHacks.Size = new System.Drawing.Size(134, 21);
             this.checkBoxRegistryHacks.TabIndex = 63;
             this.checkBoxRegistryHacks.Text = "RegistryHacks";
             this.checkBoxRegistryHacks.UseVisualStyleBackColor = true;
@@ -135,9 +135,9 @@ namespace Deployer
             // checkBoxDrivers
             // 
             this.checkBoxDrivers.AutoSize = true;
-            this.checkBoxDrivers.Location = new System.Drawing.Point(270, 672);
+            this.checkBoxDrivers.Location = new System.Drawing.Point(269, 446);
             this.checkBoxDrivers.Name = "checkBoxDrivers";
-            this.checkBoxDrivers.Size = new System.Drawing.Size(139, 17);
+            this.checkBoxDrivers.Size = new System.Drawing.Size(177, 21);
             this.checkBoxDrivers.TabIndex = 62;
             this.checkBoxDrivers.Text = "Open Drivers Folder";
             this.checkBoxDrivers.UseVisualStyleBackColor = true;
@@ -146,7 +146,7 @@ namespace Deployer
             // 
             this.btnInstall.BackColor = System.Drawing.Color.Red;
             this.btnInstall.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.btnInstall.Location = new System.Drawing.Point(106, 674);
+            this.btnInstall.Location = new System.Drawing.Point(105, 448);
             this.btnInstall.Name = "btnInstall";
             this.btnInstall.Size = new System.Drawing.Size(147, 54);
             this.btnInstall.TabIndex = 61;
@@ -157,17 +157,17 @@ namespace Deployer
             // labelPathFile
             // 
             this.labelPathFile.AutoSize = true;
-            this.labelPathFile.Location = new System.Drawing.Point(10, 753);
+            this.labelPathFile.Location = new System.Drawing.Point(9, 527);
             this.labelPathFile.Name = "labelPathFile";
-            this.labelPathFile.Size = new System.Drawing.Size(120, 13);
+            this.labelPathFile.Size = new System.Drawing.Size(152, 17);
             this.labelPathFile.TabIndex = 69;
             this.labelPathFile.Text = "Paths  File Location";
             // 
             // txtboxInstallsPath
             // 
-            this.txtboxInstallsPath.Location = new System.Drawing.Point(168, 750);
+            this.txtboxInstallsPath.Location = new System.Drawing.Point(167, 524);
             this.txtboxInstallsPath.Name = "txtboxInstallsPath";
-            this.txtboxInstallsPath.Size = new System.Drawing.Size(385, 20);
+            this.txtboxInstallsPath.Size = new System.Drawing.Size(385, 23);
             this.txtboxInstallsPath.TabIndex = 68;
             this.txtboxInstallsPath.Tag = "Enter Paths.txt *path* full here";
             this.txtboxInstallsPath.TextChanged += new System.EventHandler(this.txtboxInstallsPath_TextChanged);
@@ -175,19 +175,20 @@ namespace Deployer
             // flp_main
             // 
             this.flp_main.AutoScroll = true;
+            this.flp_main.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flp_main.Location = new System.Drawing.Point(4, 12);
             this.flp_main.Name = "flp_main";
-            this.flp_main.Size = new System.Drawing.Size(1378, 656);
+            this.flp_main.Size = new System.Drawing.Size(753, 418);
             this.flp_main.TabIndex = 72;
             // 
             // Deployer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.LightGray;
-            this.ClientSize = new System.Drawing.Size(1384, 831);
+            this.ClientSize = new System.Drawing.Size(769, 611);
             this.Controls.Add(this.flp_main);
             this.Controls.Add(this.btnLanScan);
             this.Controls.Add(this.textBoxDateTime);

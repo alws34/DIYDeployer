@@ -35,9 +35,9 @@ namespace Deployer
         private void createCheckBoxes(string path, FlowLayoutPanel flpl)
         {
             /*
-             * TODO 
-             *FIX DUPLICATED CODE!!!
-            **/
+             * TODO: 
+             *FIX DUPLICATED CODE
+             */
             try
             {
                 FileAttributes attr = File.GetAttributes(path);
@@ -109,9 +109,10 @@ namespace Deployer
                                 }
                             }
 
-                            flp = new FlowLayoutPanel();//foreach directory create a flow layout panel to host its checkboxes
+                            flp = new FlowLayoutPanel();//for each directory create a flow layout panel to host its checkboxes
                             flp.AutoScroll = true;
                             flp.AutoSize = true;
+                            flp.MaximumSize= new Size(400,200); // width * height
                             flp.BackColor = Color.White;
 
                             foreach (CheckBox c in checkboxlst)
@@ -120,15 +121,12 @@ namespace Deployer
                             if (flp.Controls.Count >= 1) //dont add empty panels
                                 flpl.Controls.Add(flp);
                         }
-
                     }
-                    //foreach (CheckBox c in checkboxlst)
-                    //    flpl.Controls.Add(c);
                 }
             }
-            catch (Exception Exception)
+            catch (Exception e)
             {
-                reenterPaths("createCheckBoxes says:" + Exception.ToString());
+                reenterPaths("createCheckBoxes says:" + e.ToString());
             }
         }
 
@@ -164,17 +162,9 @@ namespace Deployer
                     }
                 }
             }
-            catch (DirectoryNotFoundException)
+            catch (Exception e)
             {
-                reenterPaths("FoldernotFoundException@setPanels");
-            }
-            catch (FileNotFoundException)
-            {
-                reenterPaths("FileNotFoundException@setPanels");
-            }
-            catch (IOException)
-            {
-                reenterPaths("IOException@setPanels");
+                reenterPaths(e.ToString() + " @setPanels");
             }
         }
 
@@ -237,49 +227,47 @@ namespace Deployer
                         w.Close();
                         using (installBatch = new Process())//run batch file
                         {
+                            finishInstall(DeployerScript);
                             installBatch.StartInfo.FileName = DeployerScript;
                             installBatch.Start();
                         }
-                        // if (!(installBatch.HasExited))
-                        finishInstall();
                     }
                 }
             }
-            catch (System.ComponentModel.Win32Exception w32)
+            catch (Exception e)
             {
-                finishInstall();
-                showErrorMessage(w32.ToString() + "\n@install");
-            }
-            catch (ArgumentNullException ane)
-            {
-                showErrorMessage(ane.ToString() + "\n@install");
-            }
-            catch (IOException ioe)
-            {
-                reenterPaths(ioe.ToString() + "\n@install");
-            }
-            catch (ArgumentException ae)
-            {
-                showErrorMessage(ae.ToString() + "\n@install");
-            }
-            catch (System.Security.SecurityException se)
-            {
-                showErrorMessage(se.ToString() + "\n@install");
+                showErrorMessage(e.ToString() + "\n@install");
             }
         }
 
-        private void finishInstall()//finalize
+        /*
+         * Finalize batch script
+         */
+        private void finishInstall(string script)
         {
+            List<string> finalize = new List<string>(); ;
             DialogResult dialogResult = MessageBox.Show("Do you want to run the finalizing bat file?\nThe folowing things will happen:\n-power plans configuration\n-python updates and extra config\n-some websites will be opened (microsoft store use full download)\n-A restart timer for your choosing (input in ms)", "run restartAfterFinish.bat", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
             if (dialogResult == DialogResult.Yes)
             {
-                Process.Start(installationsPath + @"\restartAfterFinish.bat"); // start restartAfterFinish.bat on finish
+                using (StreamReader sr = new StreamReader(installationsPath + @"\restartAfterFinish.txt"))
+                {
+                    while (sr.ReadLine() != null)
+                    {
+                        finalize.Add(sr.ReadLine());
+                    }
+                }
+                using (StreamWriter w = new StreamWriter(DeployerScript, true))
+                {
+                    for (int i = 0; i < finalize.Count; i++)
+                        w.WriteLine(finalize[i]);
+                }
             }
-            else
-                Dispose();//just exit
         }
 
-        private void setWRDPort()// set WRD port
+        /*
+         *set WRD port
+         */
+        private void setWRDPort()
         {
             try
             {
