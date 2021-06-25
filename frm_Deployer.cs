@@ -108,14 +108,13 @@ namespace Deployer
                                     }
                                 }
                             }
-
                             flp = new FlowLayoutPanel();//for each directory create a flow layout panel to host its checkboxes
                             flp.AutoScroll = true;
                             flp.AutoSize = true;
                             flp.MaximumSize= new Size(400,200); // width * height
                             flp.BackColor = Color.White;
 
-                            foreach (CheckBox c in checkboxlst)
+                            foreach (CheckBox c in checkboxlst) // add check boxes to flow layout panel
                                 flp.Controls.Add(c);
 
                             if (flp.Controls.Count >= 1) //dont add empty panels
