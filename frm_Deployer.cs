@@ -111,7 +111,7 @@ namespace Deployer
                             flp = new FlowLayoutPanel();//for each directory create a flow layout panel to host its checkboxes
                             flp.AutoScroll = true;
                             flp.AutoSize = true;
-                            flp.MaximumSize= new Size(400,200); // width * height
+                            flp.MaximumSize = new Size(400, 200); // width * height
                             flp.BackColor = Color.White;
 
                             foreach (CheckBox c in checkboxlst) // add check boxes to flow layout panel
@@ -167,39 +167,48 @@ namespace Deployer
             }
         }
 
-        private string GetSilentSwitches(string program)//get silent install switches from DB
+        private string GetSilentSwitches(string program, string[] switches_arr)//get silent install switches from DB
         {
-            string DBpath = installationsPath + @"\SilentSwitchesDB.txt";
-
-            using (StreamReader sr = new StreamReader(DBpath))
+            char delimiter = '^';
+            foreach (string line in switches_arr)
             {
-                char delimiter = '^';
-                string line = sr.ReadLine();
-                while (sr.ReadLine() != null)
-                {
-                    string program_name = line.Split(delimiter).First();
-                    string silentswitch = line.Split(delimiter).Last();
-                    if (program.Contains(program_name))
-                        return silentswitch;// returns a path
-                    return null;//if program wasnt found in db
-                }
-                return null;
+                string program_name = line.Split(delimiter).First();
+                string silent_switch = line.Split(delimiter).Last();
+                if (program.Contains(program_name))
+                    return silent_switch;// returns a path
             }
+            return null; // if program wasnt found in DB
         }
 
-        private void startInstall()//start installation
+        private void startInstall(string path)//start installation
         {
-            Process installBatch;
+            //Process installBatch;
             try
             {
                 if (File.Exists(DeployerScript))
                 {
-                    using (StreamWriter w = new StreamWriter(DeployerScript))
+                    using (StreamWriter w = new StreamWriter(DeployerScript)) //write to batch file
                     {
+                        //string init = "@Echo On\nColor 1A\n";
+                        //init += @"cd %systemroot%\system32";
+                        //init += "\ncall :IsAdmin";
+                        //init += "\n:IsAdmin";
+                        //init += "\nReg.exe query " + '\u0022' + @"HKU\S-1-5-19\Environment" + '\u0022';
+                        //init += "\nIf Not %ERRORLEVEL% EQU 0 (";
+                        //init += "\n Cls & Echo You must have administrator rights to continue ...";
+                        //init += "\n Pause & Exit";
+                        //init += "\n)";
+                        //init += "\nCls";
+                        //// init += "\ngoto:eof";
+                        //init += "\n\n\n";
+                        //w.WriteLine(init);
+
                         List<string> nonsilents = new List<string>(); ;
                         foreach (string program in programsToInstall)
                         {
-                            string silentswitch = GetSilentSwitches(program);
+                            string DBpath = installationsPath + @"\SilentSwitchesDB.txt";
+                            string[] silentswitches = File.ReadAllLines(DBpath);//get atrray of silen switches
+                            string silentswitch = GetSilentSwitches(program, silentswitches);
                             if (silentswitch != null)//if silent switch was found
                             {
                                 w.WriteLine(program + " " + silentswitch); // write all silents first 
@@ -224,12 +233,15 @@ namespace Deployer
                             w.WriteLine(reghacks);
                         }
                         w.Close();
-                        using (installBatch = new Process())//run batch file
-                        {
-                            finishInstall(DeployerScript);
-                            installBatch.StartInfo.FileName = DeployerScript;
-                            installBatch.Start();
-                        }
+
+                        finishInstall(DeployerScript);
+                        ProcessStartInfo procInfo = new ProcessStartInfo();
+                        procInfo.UseShellExecute = true;
+                        procInfo.CreateNoWindow = false;
+                        procInfo.FileName = DeployerScript;
+                        procInfo.WorkingDirectory = path; //The working DIR.
+                        procInfo.Verb = "runas"; //running the process as admin
+                        Process.Start(procInfo);
                     }
                 }
             }
@@ -244,21 +256,24 @@ namespace Deployer
          */
         private void finishInstall(string script)
         {
-            List<string> finalize = new List<string>(); ;
-            DialogResult dialogResult = MessageBox.Show("Do you want to run the finalizing bat file?\nThe folowing things will happen:\n-power plans configuration\n-python updates and extra config\n-some websites will be opened (microsoft store use full download)\n-A restart timer for your choosing (input in ms)", "run restartAfterFinish.bat", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            DialogResult dialogResult = MessageBox.Show(
+                "Do you want to run the finalizing bat file?\nThe folowing things will happen:" +
+                "\n-power plans configuration\n-python updates and extra config\n-some websites will be opened " +
+                "(microsoft store use full download)\n-A restart timer for your choosing (input in ms)",
+                "run restartAfterFinish.bat"
+                , MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
             if (dialogResult == DialogResult.Yes)
             {
-                using (StreamReader sr = new StreamReader(installationsPath + @"\restartAfterFinish.txt"))
-                {
-                    while (sr.ReadLine() != null)
-                    {
-                        finalize.Add(sr.ReadLine());
-                    }
-                }
+                string[] finalize = File.ReadAllLines(installationsPath + @"\restartAfterFinish.txt"); // read the entire file consequently
                 using (StreamWriter w = new StreamWriter(DeployerScript, true))
                 {
-                    for (int i = 0; i < finalize.Count; i++)
-                        w.WriteLine(finalize[i]);
+                    foreach (string line in finalize)
+                    {
+                        w.WriteLine(line);
+                    }
+                    //for (int i = 0; i < finalize.Length; i++)
+                    //    w.WriteLine(finalize[i]);
                 }
             }
         }
@@ -358,7 +373,7 @@ namespace Deployer
         /*********/
         private void install(object sender, EventArgs e)//start install 
         {
-            startInstall();
+            startInstall(txtboxInstallsPath.Text);
         }
 
         private void reset()//reset the form
