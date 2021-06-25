@@ -368,19 +368,24 @@ namespace Deployer
             // textBoxWrdPort.Text = randPort.ToString();
             textBoxWrdPort.Text = new Random().Next(34568, 65535).ToString();
         }
+
+        /*
+         *reset form
+         */
+        private void reset()
+        {
+            Hide();
+            Deployer d = new Deployer();
+            d.Closed += (s, args) => Close();
+            d.Show();
+        }
+        
         /*********/
         /*Events*/
         /*********/
         private void install(object sender, EventArgs e)//start install 
         {
             startInstall(txtboxInstallsPath.Text);
-        }
-
-        private void reset()//reset the form
-        {
-            Deployer d = new Deployer(); //start new instance
-            d.Show();
-            Dispose();//remove current instance
         }
 
         /*
