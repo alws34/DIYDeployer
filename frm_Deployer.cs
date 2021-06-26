@@ -189,20 +189,6 @@ namespace Deployer
                 {
                     using (StreamWriter w = new StreamWriter(DeployerScript)) //write to batch file
                     {
-                        //string init = "@Echo On\nColor 1A\n";
-                        //init += @"cd %systemroot%\system32";
-                        //init += "\ncall :IsAdmin";
-                        //init += "\n:IsAdmin";
-                        //init += "\nReg.exe query " + '\u0022' + @"HKU\S-1-5-19\Environment" + '\u0022';
-                        //init += "\nIf Not %ERRORLEVEL% EQU 0 (";
-                        //init += "\n Cls & Echo You must have administrator rights to continue ...";
-                        //init += "\n Pause & Exit";
-                        //init += "\n)";
-                        //init += "\nCls";
-                        //// init += "\ngoto:eof";
-                        //init += "\n\n\n";
-                        //w.WriteLine(init);
-
                         List<string> nonsilents = new List<string>(); ;
                         foreach (string program in programsToInstall)
                         {
@@ -272,8 +258,6 @@ namespace Deployer
                     {
                         w.WriteLine(line);
                     }
-                    //for (int i = 0; i < finalize.Length; i++)
-                    //    w.WriteLine(finalize[i]);
                 }
             }
         }
