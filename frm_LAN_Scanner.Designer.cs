@@ -1,7 +1,7 @@
 ﻿
 namespace Deployer
 {
-    partial class frmLanScanner
+    partial class FrmLanScanner
     {
         /// <summary>
         /// Required designer variable.
@@ -67,7 +67,7 @@ namespace Deployer
             this.textBoxIpRange.Tag = "This is the Ip range of this computer. is that the desired Ip range?    if not, c" +
     "hange it before clicking the \"start scan\" button.  add only the first 3 octates " +
     "of your IP address";
-            this.textBoxIpRange.MouseMove += new System.Windows.Forms.MouseEventHandler(this.textBox_MouseMove);
+            this.textBoxIpRange.MouseMove += new System.Windows.Forms.MouseEventHandler(this.TextBox_MouseMove);
             // 
             // labelStatusText
             // 
@@ -95,7 +95,7 @@ namespace Deployer
             this.btnScan.TabIndex = 6;
             this.btnScan.Text = "Start Scan";
             this.btnScan.UseVisualStyleBackColor = true;
-            this.btnScan.Click += new System.EventHandler(this.btnScan_Click);
+            this.btnScan.Click += new System.EventHandler(this.BtnScan_Click);
             // 
             // listViewLanScan
             // 
@@ -127,9 +127,9 @@ namespace Deployer
             this.button1.TabIndex = 11;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
-            // frmLanScanner
+            // FrmLanScanner
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -143,7 +143,7 @@ namespace Deployer
             this.Controls.Add(this.textBoxIpRange);
             this.Controls.Add(this.labelipRange);
             this.Controls.Add(this.progressBar);
-            this.Name = "frmLanScanner";
+            this.Name = "FrmLanScanner";
             this.Text = "Lan Scanner";
             this.ResumeLayout(false);
             this.PerformLayout();

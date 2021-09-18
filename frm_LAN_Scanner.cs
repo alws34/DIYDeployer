@@ -7,10 +7,10 @@ using System.Net.NetworkInformation;
 
 namespace Deployer
 {
-    public partial class frmLanScanner : Form
+    public partial class FrmLanScanner : Form
     {
         bool cancel = false;
-        public frmLanScanner()
+        public FrmLanScanner()
         {
             InitializeComponent();
             listViewLanScan.View = View.Details;
@@ -31,7 +31,7 @@ namespace Deployer
             myIP = myIP.Substring(0, myIP.LastIndexOf("."));
             return myIP;
         }
-        private void reset()
+        private void Reset()
         {
             textBoxIpRange.Text = "";
             listViewLanScan.Items.Clear();
@@ -39,7 +39,7 @@ namespace Deployer
             progressBar.Value = 0;
             labelStatusText.Text = "";
         }
-        private void btnScan_Click(object sender, EventArgs e)
+        private void BtnScan_Click(object sender, EventArgs e)
         {
             cancel = false;
             int maximum_ip = 255;
@@ -59,7 +59,7 @@ namespace Deployer
                     {
                         if(cancel == true)
                         {
-                            reset();
+                            Reset();
                             return;
                         }
                         progressBar.BeginInvoke(new Action(() =>
@@ -95,14 +95,14 @@ namespace Deployer
                 }
             }));
         }
-        private void textBox_MouseMove(object sender, MouseEventArgs e)
+        private void TextBox_MouseMove(object sender, MouseEventArgs e)
         {
             TextBox textbox = (sender as TextBox);
             toolTipIPRange.SetToolTip(textbox, textbox.Tag.ToString());
             toolTipIPRange.ToolTipTitle = textbox.Name;
         }//tooltip message
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1_Click(object sender, EventArgs e)
         {
             cancel = true;
         }

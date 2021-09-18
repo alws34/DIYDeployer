@@ -40,7 +40,6 @@ namespace Deployer
             this.buttonReset = new System.Windows.Forms.Button();
             this.textBoxWrdPort = new System.Windows.Forms.TextBox();
             this.checkBoxChangeWRDPort = new System.Windows.Forms.CheckBox();
-            this.checkBoxRegistryHacks = new System.Windows.Forms.CheckBox();
             this.checkBoxDrivers = new System.Windows.Forms.CheckBox();
             this.btnInstall = new System.Windows.Forms.Button();
             this.labelPathFile = new System.Windows.Forms.Label();
@@ -52,7 +51,7 @@ namespace Deployer
             // 
             this.time.Enabled = true;
             this.time.Interval = 1000;
-            this.time.Tick += new System.EventHandler(this.time_Tick);
+            this.time.Tick += new System.EventHandler(this.Time_Tick);
             // 
             // toolTipdynamic
             // 
@@ -67,7 +66,7 @@ namespace Deployer
             this.btnLanScan.TabIndex = 71;
             this.btnLanScan.Text = "Lan scanner";
             this.btnLanScan.UseVisualStyleBackColor = true;
-            this.btnLanScan.Click += new System.EventHandler(this.btnLanScan_Click);
+            this.btnLanScan.Click += new System.EventHandler(this.BtnLanScan_Click);
             // 
             // textBoxDateTime
             // 
@@ -88,7 +87,7 @@ namespace Deployer
             this.buttonRandomWRDport.TabIndex = 67;
             this.buttonRandomWRDport.Text = "Random Port";
             this.buttonRandomWRDport.UseVisualStyleBackColor = true;
-            this.buttonRandomWRDport.Click += new System.EventHandler(this.buttonRandomWRDport_Click);
+            this.buttonRandomWRDport.Click += new System.EventHandler(this.ButtonRandomWRDport_Click);
             // 
             // buttonReset
             // 
@@ -98,7 +97,7 @@ namespace Deployer
             this.buttonReset.TabIndex = 66;
             this.buttonReset.Text = "Reset Form";
             this.buttonReset.UseVisualStyleBackColor = true;
-            this.buttonReset.Click += new System.EventHandler(this.buttonReset_Click);
+            this.buttonReset.Click += new System.EventHandler(this.ButtonReset_Click);
             // 
             // textBoxWrdPort
             // 
@@ -108,8 +107,8 @@ namespace Deployer
             this.textBoxWrdPort.Size = new System.Drawing.Size(93, 23);
             this.textBoxWrdPort.TabIndex = 65;
             this.textBoxWrdPort.Tag = "Port number between 34568 and 65535";
-            this.textBoxWrdPort.TextChanged += new System.EventHandler(this.textBoxWrdPort_TextChanged);
-            this.textBoxWrdPort.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxWrdPort_KeyPress);
+            this.textBoxWrdPort.TextChanged += new System.EventHandler(this.TextBoxWrdPort_TextChanged);
+            this.textBoxWrdPort.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxWrdPort_KeyPress);
             // 
             // checkBoxChangeWRDPort
             // 
@@ -120,17 +119,7 @@ namespace Deployer
             this.checkBoxChangeWRDPort.TabIndex = 64;
             this.checkBoxChangeWRDPort.Text = "Change WRD Port";
             this.checkBoxChangeWRDPort.UseVisualStyleBackColor = true;
-            this.checkBoxChangeWRDPort.CheckStateChanged += new System.EventHandler(this.checkBoxChangeWRDPort_CheckStateChanged);
-            // 
-            // checkBoxRegistryHacks
-            // 
-            this.checkBoxRegistryHacks.AutoSize = true;
-            this.checkBoxRegistryHacks.Location = new System.Drawing.Point(269, 483);
-            this.checkBoxRegistryHacks.Name = "checkBoxRegistryHacks";
-            this.checkBoxRegistryHacks.Size = new System.Drawing.Size(134, 21);
-            this.checkBoxRegistryHacks.TabIndex = 63;
-            this.checkBoxRegistryHacks.Text = "RegistryHacks";
-            this.checkBoxRegistryHacks.UseVisualStyleBackColor = true;
+            this.checkBoxChangeWRDPort.CheckStateChanged += new System.EventHandler(this.CheckBoxChangeWRDPort_CheckStateChanged);
             // 
             // checkBoxDrivers
             // 
@@ -152,7 +141,7 @@ namespace Deployer
             this.btnInstall.TabIndex = 61;
             this.btnInstall.Text = "Install";
             this.btnInstall.UseVisualStyleBackColor = false;
-            this.btnInstall.Click += new System.EventHandler(this.install);
+            this.btnInstall.Click += new System.EventHandler(this.Install);
             // 
             // labelPathFile
             // 
@@ -170,7 +159,7 @@ namespace Deployer
             this.txtboxInstallsPath.Size = new System.Drawing.Size(385, 23);
             this.txtboxInstallsPath.TabIndex = 68;
             this.txtboxInstallsPath.Tag = "Enter Paths.txt *path* full here";
-            this.txtboxInstallsPath.TextChanged += new System.EventHandler(this.txtboxInstallsPath_TextChanged);
+            this.txtboxInstallsPath.TextChanged += new System.EventHandler(this.TxtboxInstallsPath_TextChanged);
             // 
             // flp_main
             // 
@@ -196,7 +185,6 @@ namespace Deployer
             this.Controls.Add(this.buttonReset);
             this.Controls.Add(this.textBoxWrdPort);
             this.Controls.Add(this.checkBoxChangeWRDPort);
-            this.Controls.Add(this.checkBoxRegistryHacks);
             this.Controls.Add(this.checkBoxDrivers);
             this.Controls.Add(this.btnInstall);
             this.Controls.Add(this.labelPathFile);
@@ -219,7 +207,6 @@ namespace Deployer
         private System.Windows.Forms.Button buttonReset;
         private System.Windows.Forms.TextBox textBoxWrdPort;
         private System.Windows.Forms.CheckBox checkBoxChangeWRDPort;
-        private System.Windows.Forms.CheckBox checkBoxRegistryHacks;
         private System.Windows.Forms.CheckBox checkBoxDrivers;
         private System.Windows.Forms.Button btnInstall;
         private System.Windows.Forms.Label labelPathFile;
