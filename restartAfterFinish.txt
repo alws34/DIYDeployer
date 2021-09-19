@@ -172,6 +172,12 @@ REM Reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDes
 rem "Let me set a different input method for each app window"
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /t REG_BINARY /d "9E1E078092000000" /f
 
+rem enable clipboard history
+Reg.exe add "HKCU\Software\Microsoft\Clipboard" /v "EnableClipboardHistory" /t REG_DWORD /d "1" /f
+
+rem disable clipboard history
+rem Reg.exe add "HKCU\Software\Microsoft\Clipboard" /v "EnableClipboardHistory" /t REG_DWORD /d "0" /f
+
 @echo *****************************************************
 @echo -----------------Windows feature activation----------
 @echo *****************************************************
