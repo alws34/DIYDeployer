@@ -433,9 +433,10 @@ namespace Deployer
             if (chckbox.Checked)//if program is selected - add
                 programsToInstall.Add(programPath);
             else//remove program from array 
-                for (int i = 0; i < programsToInstall.Count; i++)
-                    if (programsToInstall[i] == programPath)
-                        programsToInstall.RemoveAt(i);
+                programsToInstall.Remove(programPath);
+                //for (int i = 0; i < programsToInstall.Count; i++)
+                //    if (programsToInstall[i] == programPath)
+                //        programsToInstall.RemoveAt(i);
         }
 
         /*
