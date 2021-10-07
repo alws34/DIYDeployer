@@ -24,9 +24,6 @@ namespace Deployer
 
         public Deployer()
         {
-
-
-
             InitializeComponent();
             GetInitFiles();
 
@@ -34,7 +31,6 @@ namespace Deployer
             GetAvailablePaths(available_paths_txt);
 
             DisableFeatures();
-
         }
 
         /*********/
@@ -58,10 +54,17 @@ namespace Deployer
         private void GetAvailablePaths(string path)
         {
             CreateFile(path);
-            string line;
             using (StreamReader sr = new StreamReader(path))
+            {
+                string line;
                 while ((line = sr.ReadLine()) != null)
+                {
+                    avaialble_Paths.Add(line);
                     comboBoxAvailablePaths.Items.Add(line);
+                }
+            }
+                
+                    
         }
 
         private void GetInitFiles()
@@ -247,23 +250,27 @@ namespace Deployer
             files_list.AddRange(Directory.GetFiles(path, "*.bat", SearchOption.AllDirectories));//add all bat files
             return files_list;
         }
+
         private void FileWriter(string filepath, List<string> list)
         {
             using (StreamWriter sw = new StreamWriter(filepath))
                 foreach (string item in list)
                     sw.WriteLine(item);
         }
+
         private void FileWriter(string filepath, string str)
         {
             using (StreamWriter sw = new StreamWriter(filepath))
                 sw.WriteLine(str);
         }
+
         private void AppendToFile(string filepath, string[] list)
         {
             using (StreamWriter sw = new StreamWriter(filepath, true))
                 foreach (string item in list)
                     sw.WriteLine(item);
         }
+
         private void SetPanels()
         {
             try
