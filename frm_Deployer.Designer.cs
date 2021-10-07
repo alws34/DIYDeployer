@@ -45,6 +45,10 @@ namespace Deployer
             this.labelPathFile = new System.Windows.Forms.Label();
             this.txtboxInstallsPath = new System.Windows.Forms.TextBox();
             this.flp_main = new System.Windows.Forms.FlowLayoutPanel();
+            this.comboBoxAvailablePaths = new System.Windows.Forms.ComboBox();
+            this.lblAvailablePaths = new System.Windows.Forms.Label();
+            this.btnInstallCosmos = new System.Windows.Forms.Button();
+            this.btnLabComputer = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // time
@@ -75,7 +79,7 @@ namespace Deployer
             this.textBoxDateTime.MaxLength = 50;
             this.textBoxDateTime.Name = "textBoxDateTime";
             this.textBoxDateTime.ReadOnly = true;
-            this.textBoxDateTime.Size = new System.Drawing.Size(166, 23);
+            this.textBoxDateTime.Size = new System.Drawing.Size(166, 20);
             this.textBoxDateTime.TabIndex = 70;
             // 
             // buttonRandomWRDport
@@ -104,7 +108,7 @@ namespace Deployer
             this.textBoxWrdPort.BackColor = System.Drawing.Color.White;
             this.textBoxWrdPort.Location = new System.Drawing.Point(619, 444);
             this.textBoxWrdPort.Name = "textBoxWrdPort";
-            this.textBoxWrdPort.Size = new System.Drawing.Size(93, 23);
+            this.textBoxWrdPort.Size = new System.Drawing.Size(93, 20);
             this.textBoxWrdPort.TabIndex = 65;
             this.textBoxWrdPort.Tag = "Port number between 34568 and 65535";
             this.textBoxWrdPort.TextChanged += new System.EventHandler(this.TextBoxWrdPort_TextChanged);
@@ -115,7 +119,7 @@ namespace Deployer
             this.checkBoxChangeWRDPort.AutoSize = true;
             this.checkBoxChangeWRDPort.Location = new System.Drawing.Point(452, 446);
             this.checkBoxChangeWRDPort.Name = "checkBoxChangeWRDPort";
-            this.checkBoxChangeWRDPort.Size = new System.Drawing.Size(161, 21);
+            this.checkBoxChangeWRDPort.Size = new System.Drawing.Size(130, 17);
             this.checkBoxChangeWRDPort.TabIndex = 64;
             this.checkBoxChangeWRDPort.Text = "Change WRD Port";
             this.checkBoxChangeWRDPort.UseVisualStyleBackColor = true;
@@ -126,7 +130,7 @@ namespace Deployer
             this.checkBoxDrivers.AutoSize = true;
             this.checkBoxDrivers.Location = new System.Drawing.Point(269, 446);
             this.checkBoxDrivers.Name = "checkBoxDrivers";
-            this.checkBoxDrivers.Size = new System.Drawing.Size(177, 21);
+            this.checkBoxDrivers.Size = new System.Drawing.Size(139, 17);
             this.checkBoxDrivers.TabIndex = 62;
             this.checkBoxDrivers.Text = "Open Drivers Folder";
             this.checkBoxDrivers.UseVisualStyleBackColor = true;
@@ -148,7 +152,7 @@ namespace Deployer
             this.labelPathFile.AutoSize = true;
             this.labelPathFile.Location = new System.Drawing.Point(9, 527);
             this.labelPathFile.Name = "labelPathFile";
-            this.labelPathFile.Size = new System.Drawing.Size(152, 17);
+            this.labelPathFile.Size = new System.Drawing.Size(120, 13);
             this.labelPathFile.TabIndex = 69;
             this.labelPathFile.Text = "Paths  File Location";
             // 
@@ -156,7 +160,7 @@ namespace Deployer
             // 
             this.txtboxInstallsPath.Location = new System.Drawing.Point(167, 524);
             this.txtboxInstallsPath.Name = "txtboxInstallsPath";
-            this.txtboxInstallsPath.Size = new System.Drawing.Size(385, 23);
+            this.txtboxInstallsPath.Size = new System.Drawing.Size(385, 20);
             this.txtboxInstallsPath.TabIndex = 68;
             this.txtboxInstallsPath.Tag = "Enter Paths.txt *path* full here";
             this.txtboxInstallsPath.TextChanged += new System.EventHandler(this.TxtboxInstallsPath_TextChanged);
@@ -170,14 +174,56 @@ namespace Deployer
             this.flp_main.Size = new System.Drawing.Size(753, 418);
             this.flp_main.TabIndex = 72;
             // 
+            // comboBoxAvailablePaths
+            // 
+            this.comboBoxAvailablePaths.FormattingEnabled = true;
+            this.comboBoxAvailablePaths.Location = new System.Drawing.Point(167, 550);
+            this.comboBoxAvailablePaths.Name = "comboBoxAvailablePaths";
+            this.comboBoxAvailablePaths.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxAvailablePaths.TabIndex = 73;
+            this.comboBoxAvailablePaths.SelectedIndexChanged += new System.EventHandler(this.comboBoxAvailablePaths_SelectedIndexChanged);
+            // 
+            // lblAvailablePaths
+            // 
+            this.lblAvailablePaths.AutoSize = true;
+            this.lblAvailablePaths.Location = new System.Drawing.Point(9, 553);
+            this.lblAvailablePaths.Name = "lblAvailablePaths";
+            this.lblAvailablePaths.Size = new System.Drawing.Size(95, 13);
+            this.lblAvailablePaths.TabIndex = 74;
+            this.lblAvailablePaths.Text = "Available Paths";
+            // 
+            // btnInstallCosmos
+            // 
+            this.btnInstallCosmos.Location = new System.Drawing.Point(504, 576);
+            this.btnInstallCosmos.Name = "btnInstallCosmos";
+            this.btnInstallCosmos.Size = new System.Drawing.Size(107, 23);
+            this.btnInstallCosmos.TabIndex = 75;
+            this.btnInstallCosmos.Text = "Install Cosmos";
+            this.btnInstallCosmos.UseVisualStyleBackColor = true;
+            this.btnInstallCosmos.Click += new System.EventHandler(this.btnInstallCosmos_Click);
+            // 
+            // btnLabComputer
+            // 
+            this.btnLabComputer.Location = new System.Drawing.Point(617, 576);
+            this.btnLabComputer.Name = "btnLabComputer";
+            this.btnLabComputer.Size = new System.Drawing.Size(148, 23);
+            this.btnLabComputer.TabIndex = 76;
+            this.btnLabComputer.Text = "Install New Lab PC";
+            this.btnLabComputer.UseVisualStyleBackColor = true;
+            this.btnLabComputer.Click += new System.EventHandler(this.btnLabComputer_Click);
+            // 
             // Deployer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.LightGray;
             this.ClientSize = new System.Drawing.Size(769, 611);
+            this.Controls.Add(this.btnLabComputer);
+            this.Controls.Add(this.btnInstallCosmos);
+            this.Controls.Add(this.lblAvailablePaths);
+            this.Controls.Add(this.comboBoxAvailablePaths);
             this.Controls.Add(this.flp_main);
             this.Controls.Add(this.btnLanScan);
             this.Controls.Add(this.textBoxDateTime);
@@ -212,6 +258,10 @@ namespace Deployer
         private System.Windows.Forms.Label labelPathFile;
         private System.Windows.Forms.TextBox txtboxInstallsPath;
         private System.Windows.Forms.FlowLayoutPanel flp_main;
+        private System.Windows.Forms.ComboBox comboBoxAvailablePaths;
+        private System.Windows.Forms.Label lblAvailablePaths;
+        private System.Windows.Forms.Button btnInstallCosmos;
+        private System.Windows.Forms.Button btnLabComputer;
     }
 }
 

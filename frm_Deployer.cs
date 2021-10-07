@@ -16,38 +16,67 @@ namespace Deployer
         /*Fields**/
         /*********/
         private string DeployerScript;
-        private string cwd = Directory.GetCurrentDirectory();
+        string deployer_appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Deployer";
+        string available_paths_txt = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Deployer" + "\\AvailablePaths.txt";
+        //private string cwd = Directory.GetCurrentDirectory();
         private List<string> programsToInstall = new List<string>(); //list of intended programs to Install
+        List<string> avaialble_Paths = new List<string>();
 
         public Deployer()
         {
+
+
+
             InitializeComponent();
             GetInitFiles();
 
-            btnInstall.Enabled = false;
-            textBoxWrdPort.Enabled = false;
-            buttonRandomWRDport.Enabled = false;
-            checkBoxChangeWRDPort.Enabled = false;
-            checkBoxDrivers.Enabled = false;
+            CheckFolder(deployer_appdata);
+            GetAvailablePaths(available_paths_txt);
+
+            DisableFeatures();
 
         }
 
         /*********/
         /*Methods*/
         /*********/
-        private void GetInitFiles()
-        {
-            string get_finzalizer = "curl -OL https://raw.githubusercontent.com/alws34/DIYDeployer/main/restartAfterFinish.txt " + cwd;
-            string get_silenswitches = "curl -OL https://raw.githubusercontent.com/alws34/DIYDeployer/main/SilentSwitchesDB.txt " + cwd;
 
-            RunCmd(get_finzalizer);
-            RunCmd(get_silenswitches);
+        private void DisableFeatures()
+        {
+            btnInstall.Enabled = false;
+            textBoxWrdPort.Enabled = false;
+            buttonRandomWRDport.Enabled = false;
+            checkBoxChangeWRDPort.Enabled = false;
+            checkBoxDrivers.Enabled = false;
+        }
+        private void CheckFolder(string path)
+        {
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
         }
 
-        private void RunCmd(string command)
+        private void GetAvailablePaths(string path)
+        {
+            CreateFile(path);
+            string line;
+            using (StreamReader sr = new StreamReader(path))
+                while ((line = sr.ReadLine()) != null)
+                    comboBoxAvailablePaths.Items.Add(line);
+        }
+
+        private void GetInitFiles()
+        {
+            string get_finzalizer = "curl -OL https://raw.githubusercontent.com/alws34/DIYDeployer/main/restartAfterFinish.txt";
+            string get_silenswitches = "curl -OL https://raw.githubusercontent.com/alws34/DIYDeployer/main/SilentSwitchesDB.txt";
+
+            RunCmd(get_finzalizer, true);
+            RunCmd(get_silenswitches, true);
+        }
+
+        private void RunCmd(string command, bool createNoWindow)
         {
             var processInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
-            processInfo.CreateNoWindow = true;
+            processInfo.CreateNoWindow = createNoWindow;
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardError = true;
             processInfo.RedirectStandardOutput = true;
@@ -70,10 +99,6 @@ namespace Deployer
 
         private void CreateCheckBoxes(string path, FlowLayoutPanel flpl)
         {
-            /*
-             * TODO: 
-             *FIX DUPLICATED CODE
-             */
             try
             {
                 if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
@@ -87,95 +112,101 @@ namespace Deployer
                     string zip = ".zip";
                     string rar = ".rar";
                     string z = ".7z";
+                    string bat = ".bat";
+
 
                     List<CheckBox> checkboxlst = new List<CheckBox>();//checkboxes
                     List<FlowLayoutPanel> flplst = new List<FlowLayoutPanel>();//flow layout panels list
                     FlowLayoutPanel flp; //main flow layout panel
+                    List<string> files = new List<string>(); //list all files within the folder
 
-                    int counter = 0;
-                    string[] dirs = Directory.GetDirectories(path);
+                    //int counter = 0;
+                    //try
+                    //{
+                    //    string[] dirs = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
 
-                    foreach (string dir in dirs)
+                    //}
+                    //catch (Exception)
+                    //{
+                    //    files = AddFilesToList(path);//add all wanted file types to the list
+                    //}
+
+                    //foreach (string dir in dirs)
+                    //{
+                    //    /*
+                    //     * TODO: 
+                    //     *Deligate
+                    //     */
+                    //    if (!(dir.Contains("Drivers")) && !(dir.Contains("drivers")) && !(dir.Contains("OSs")) && !(dir.Contains("operating systems")) && !(dir.Contains("RegistryHacks")) && !(dir.Contains("RPi")) && !(dir.Contains("RPI")))//skip on those directories
+                    //{
+                    //List<string> files = new List<string>(); //list all files within the folder
+
+                    files = AddFilesToList(path);//add all wanted file types to the list
+
+                    foreach (string fileName in files)
                     {
-                        /*
-                         * TODO: 
-                         *Deligate
-                         */
-                        if (!(dir.Contains("Drivers")) && !(dir.Contains("drivers")) && !(dir.Contains("OSs")) && !(dir.Contains("operating systems")) && !(dir.Contains("RegistryHacks")) && !(dir.Contains("RPi")) && !(dir.Contains("RPI")))//skip on those directories
+                        ToolTip toolTip = new ToolTip();
+                        string folderPath = Path.GetDirectoryName(fileName);
+
+                        if (fileName.Contains(exe) || fileName.Contains(msi) || fileName.Contains(zip) || fileName.Contains(z) || fileName.Contains(rar) || fileName.Contains(bat))
                         {
-                            List<string> files = new List<string>(); //list all files within the folder
+                            programName = fileName.Replace(folderPath, "");
+                            chckboxText = programName.Replace(exe, "").Replace(msi, "").Replace(zip, "").Replace(z, "").Replace(rar, "");
 
-                            files = AddFilesToList(path);//add all wanted file types to the list
+                            //if (counter > 0 && checkboxlst != null)
+                            //{
+                            CheckBox chckbox = CheckBoxCreator(programName, path + programName, chckboxText);
 
-                            foreach (string fileName in files)
-                            {
-                                ToolTip toolTip = new ToolTip();
-                                string folderPath = Path.GetDirectoryName(fileName);
+                            AddCheckBoxEvent(chckbox);
 
-                                if (fileName.Contains(exe) || fileName.Contains(msi) || fileName.Contains(zip) || fileName.Contains(z) || fileName.Contains(rar))
-                                {
-                                    if (counter > 0 && checkboxlst != null)
-                                    {
-                                        programName = fileName.Replace(folderPath, "");
-                                        chckboxText = programName.Replace(exe, "").Replace(msi, "").Replace(zip, "").Replace(z, "").Replace(rar, "");
-                                      
-                                        CheckBox chckbox = new CheckBox
-                                        {
-                                            Name = programName, // name
-                                            Tag = path + programName, //full path
-                                            Text = chckboxText.Replace(@"\", "")
-                                        };//create checkboxes
+                            SetTooltip(toolTip, chckbox);
 
-                                        chckbox.CheckedChanged += new EventHandler(CheckBox_CheckChanged);//add checkbox checked changed event
+                            if (!checkboxlst.Contains(chckbox))
+                                checkboxlst.Add(chckbox);
 
-                                        toolTip.SetToolTip(chckbox, chckbox.Tag.ToString());//set custom tooltip for each textbox
+                            /*duplicants validation*/
+                            //bool added = false;
 
-                                        /*duplicants validation*/
-                                        bool added = false;
-                                        for (int i = 0; i < checkboxlst.Count; i++)
-                                            if (checkboxlst[i] != null && checkboxlst[i].Name == chckbox.Name)
-                                                added = true;
+                            //for (int i = 0; i < checkboxlst.Count; i++)
+                            //    if (checkboxlst[i] != null && checkboxlst[i].Name == chckbox.Name)
+                            //        added = true;
 
-                                        if (!added)
-                                        {
-                                            checkboxlst.Add(chckbox);
-                                            counter++;
-                                        }
-                                        /*duplicants validation*/
-                                    }
+                            //if (!added)
+                            //{
+                            //    checkboxlst.Add(chckbox);
+                            //    counter++;
+                            //}
+                            /*duplicants validation*/
+                            //}
 
-                                    else //if (counter == 0)
-                                    {
-                                        programName = fileName.Replace(folderPath, "");
-                                        chckboxText = programName.Replace(exe, "").Replace(msi, "").Replace(zip, "").Replace(z, "").Replace(rar, "");
-                                        CheckBox chckbox = new CheckBox
-                                        {
-                                            Name = programName,
-                                            Tag = path + programName,
-                                            Text = chckboxText.Replace(@"\", "")
-                                        };
-                                        chckbox.CheckedChanged += new EventHandler(CheckBox_CheckChanged);
-                                        toolTip.SetToolTip(chckbox, chckbox.Tag.ToString());
-                                        checkboxlst.Add(chckbox);
-                                        counter++;
-                                    }
-                                }
-                            }
-                            flp = new FlowLayoutPanel
-                            {
-                                AutoScroll = true,
-                                AutoSize = true,
-                                MaximumSize = new Size(400, 200), // width * height
-                                BackColor = Color.White
-                            };//for each directory create a flow layout panel to host its checkboxes
+                            //else //if (counter == 0)
+                            //{
+                            //    CheckBox chckbox = CheckBoxCreator(programName, path + programName, chckboxText);
 
-                            foreach (CheckBox c in checkboxlst) // add check boxes to flow layout panel
-                                flp.Controls.Add(c);
+                            //    AddCheckBoxEvent(chckbox);
+                            //    toolTip.SetToolTip(chckbox, chckbox.Tag.ToString());
+                            //    SetTooltip(toolTip, chckbox);
 
-                            if (flp.Controls.Count >= 1) //dont add empty panels
-                                flpl.Controls.Add(flp);
+                            //    checkboxlst.Add(chckbox);
+                            //    counter++;
+                            //}
                         }
                     }
+                    flp = new FlowLayoutPanel
+                    {
+                        AutoScroll = true,
+                        AutoSize = true,
+                        MaximumSize = new Size(400, 200), // width * height
+                        BackColor = Color.White
+                    };//for each directory create a flow layout panel to host its checkboxes
+
+                    foreach (CheckBox c in checkboxlst) // add check boxes to flow layout panel
+                        flp.Controls.Add(c);
+
+                    if (flp.Controls.Count >= 1) //dont add empty panels
+                        flpl.Controls.Add(flp);
+                    //}
+                    //}
                 }
             }
             catch (Exception e)
@@ -183,6 +214,28 @@ namespace Deployer
                 ReenterPaths("CreateCheckBoxes says:" + e.ToString());
             }
         }
+
+        private CheckBox CheckBoxCreator(string name, string tag, string text)
+        {
+            CheckBox c = new CheckBox
+            {
+                Name = name,
+                Tag = tag,
+                Text = text.Replace(@"\", "")
+            };
+            return c;
+        }
+
+        private void AddCheckBoxEvent(CheckBox c)
+        {
+            c.CheckedChanged += new EventHandler(CheckBox_CheckChanged);
+        }
+
+        private void SetTooltip(ToolTip t, CheckBox c)
+        {
+            t.SetToolTip(c, c.Tag.ToString());
+        }
+
         private List<string> AddFilesToList(string path)
         {
             List<string> files_list = new List<string>();
@@ -191,38 +244,73 @@ namespace Deployer
             files_list.AddRange(Directory.GetFiles(path, "*.zip", SearchOption.AllDirectories));//add all zip files
             files_list.AddRange(Directory.GetFiles(path, "*.7z", SearchOption.AllDirectories));//add all 7z files
             files_list.AddRange(Directory.GetFiles(path, "*.rar", SearchOption.AllDirectories));//add all rar files
+            files_list.AddRange(Directory.GetFiles(path, "*.bat", SearchOption.AllDirectories));//add all bat files
             return files_list;
         }
-
+        private void FileWriter(string filepath, List<string> list)
+        {
+            using (StreamWriter sw = new StreamWriter(filepath))
+                foreach (string item in list)
+                    sw.WriteLine(item);
+        }
+        private void FileWriter(string filepath, string str)
+        {
+            using (StreamWriter sw = new StreamWriter(filepath))
+                sw.WriteLine(str);
+        }
+        private void AppendToFile(string filepath, string[] list)
+        {
+            using (StreamWriter sw = new StreamWriter(filepath, true))
+                foreach (string item in list)
+                    sw.WriteLine(item);
+        }
         private void SetPanels()
         {
             try
             {
                 string installationsPath = txtboxInstallsPath.Text;
 
-                Regex Path_regex = new Regex(@"[A-Za-z]{1}:\\[\s\S\d]*");//accept only paths eg: c:\..\..\.. 
-                Regex Network_Path_regex = new Regex(@"(?:\\)[a-zA-Z]*");//to check if accept folder paths eg \\alws34cloud\..\..
+               
+                string[] subdirectories = { };
+
+                Regex Path_regex = new Regex(@"[A-Za-z]{1}:\\\D*");//[A-Za-z]{1}:\\[\s\S\d]*");//accept only paths eg: c:\..\..\.. 
+                Regex Network_Path_regex = new Regex(@"\\[\S]*");//to check if accept folder paths eg \\networkfolder\..\..
 
                 if (Path_regex.Match(installationsPath).Success || Network_Path_regex.Match(installationsPath).Success)
                 {
                     txtboxInstallsPath.Enabled = false;//disable the textbox for changes - Reset will re-enable it 
                     btnInstall.Enabled = true;
+                    try
+                    {
+                        subdirectories = Directory.GetDirectories(installationsPath, "*", SearchOption.AllDirectories); //get a list of all sub directories
 
-                    string[] subdirectories = Directory.GetDirectories(installationsPath); //get a list of all sub directories
+                    }
+                    catch (Exception)
+                    {
+                        ReenterPaths("@setpanels");
+                        return;
+                    }
+                    //string deployerpath = installationsPath + @"\Deplyer.bat";
 
-                    if (!(File.Exists(installationsPath + @"\Deplyer.bat")))//check if deployer.bat does exists, if not - create it
-                        File.Create(installationsPath + @"\Deplyer.bat");
+                    CreateFile(installationsPath + @"\Deplyer.bat");
 
-                    SetDeployerPath(installationsPath); //set deployer batch path
+                    SetDeployerPath(); //set deployer batch path
 
                     foreach (string dir in subdirectories)//create checkboxes for all valid installation files inside installations folder and its subdirectories
-                        CreateCheckBoxes(dir, flp_main);
+                        if (dir.Contains("Installs") || dir.Contains("scripts"))
+                            CreateCheckBoxes(dir, flp_main);
                 }
             }
             catch (Exception e)
             {
                 ReenterPaths(e.ToString() + " @SetPanels");
             }
+        }
+
+        private void CreateFile(string path)
+        {
+            if (!File.Exists(path))
+                File.Create(path).Close();
         }
 
         private string GetSilentSwitches(string program, string[] switches_arr)//get silent Install switches from DB
@@ -241,6 +329,11 @@ namespace Deployer
         private void StartInstall()//start installation
         {
             string installationsPath = txtboxInstallsPath.Text;
+            if (!avaialble_Paths.Contains(installationsPath))
+                avaialble_Paths.Add(installationsPath);
+
+            FileWriter(available_paths_txt, avaialble_Paths);
+
             try
             {
                 if (File.Exists(DeployerScript))//unless user deletes the file -while running, does not suppose to crash
@@ -250,7 +343,7 @@ namespace Deployer
                         List<string> nonsilents = new List<string>(); ;
                         foreach (string program in programsToInstall)
                         {
-                            string DBpath = cwd + @"\SilentSwitchesDB.txt";
+                            string DBpath = "SilentSwitchesDB.txt";
                             string[] silentswitches = File.ReadAllLines(DBpath);//get atrray of silen switches
                             string silentswitch = GetSilentSwitches(program, silentswitches);
 
@@ -262,7 +355,7 @@ namespace Deployer
 
                         foreach (string program in nonsilents)//than write all nonsilents (for order of installation)
                         {
-                            if (program.Contains(".zip") || program.Contains(".7z") || program.Contains(".rar"))//copy archives to the desktop
+                            if (program.Contains(".zip") || program.Contains(".7z") || program.Contains(".rar") || program.Contains(".bat"))//copy archives to the desktop
                             {
                                 string file_on_desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\" + Path.GetFileName(program);//set new file path to users desktop (the same file name will be created)
                                 File.Copy(program, file_on_desktop, true); // creates a new file on destination folder and copy the archive from installs folder to desktop
@@ -273,16 +366,9 @@ namespace Deployer
 
                     }//end using
 
-                    FinishInstall(installationsPath);
-                    ProcessStartInfo procInfo = new ProcessStartInfo
-                    {
-                        UseShellExecute = true,
-                        CreateNoWindow = false,
-                        FileName = DeployerScript,
-                        WorkingDirectory = installationsPath, //The working DIR.
-                        Verb = "runas" //running the process as admin
-                    };
-                    Process.Start(procInfo);
+                    FinishInstall();
+
+                    StartInstaller(DeployerScript, installationsPath);    
                 }
             }
             catch (Exception e)
@@ -291,10 +377,23 @@ namespace Deployer
             }
         }
 
+        private void StartInstaller(string DeployerScript, string installationsPath)
+        {
+            ProcessStartInfo procInfo = new ProcessStartInfo
+            {
+                UseShellExecute = true,
+                CreateNoWindow = false,
+                FileName = DeployerScript,
+                WorkingDirectory = installationsPath, //The working DIR.
+                Verb = "runas" //running the process as admin
+            };
+            Process.Start(procInfo);
+        }
+
         /*
          * Finalize batch script
          */
-        private void FinishInstall(string installationsPath)
+        private void FinishInstall()
         {
             DialogResult dialogResult = MessageBox.Show(
                 "Do you want to run the finalizing bat file?\nThe folowing will happen:" +
@@ -307,9 +406,10 @@ namespace Deployer
                 );
 
             if (dialogResult == DialogResult.Yes)//write to batch file
-                using (StreamWriter w = new StreamWriter(DeployerScript, true))
-                    foreach (string line in File.ReadAllLines(cwd + @"\restartAfterFinish.txt"))
-                        w.WriteLine(line);
+                AppendToFile(DeployerScript, File.ReadAllLines("restartAfterFinish.txt"));
+                //using (StreamWriter w = new StreamWriter(DeployerScript, true))
+                //    foreach (string line in File.ReadAllLines("restartAfterFinish.txt"))
+                //        w.WriteLine(line);
         }
 
         /*
@@ -337,15 +437,15 @@ namespace Deployer
                         }
                     }
 
-
                     if (isPortAvailable)
                     {
                         string changeWRDPort = @"reg add " + '\u0022' + @"HKLM\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP - Tcp" + '\u0022' + " /v PortNumber /t REG_DWORD /d " + port;
                         DialogResult WRDportDialog = MessageBox.Show("Are you sure you want to change the following port?\n WRD RDP Port: " + port, "Port sanity check", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
 
                         if (WRDportDialog == DialogResult.Yes)
-                            using (StreamWriter w = File.AppendText(DeployerScript))//new StreamWriter
-                                w.WriteLine(changeWRDPort);//write command to batch
+                            FileWriter(DeployerScript, changeWRDPort);
+                        //using (StreamWriter w = File.AppendText(DeployerScript))//new StreamWriter
+                        //    w.WriteLine(changeWRDPort);//write command to batch
                         else
                             return;//do nothing
                     }
@@ -358,7 +458,7 @@ namespace Deployer
                     //ShowErrorMessage("port number cant be empty!");
                     return;
                 }
-                else if (textBoxWrdPort.Text.Length < 4 || textBoxWrdPort.Text.Length > 5)
+                else if (Int32.Parse(textBoxWrdPort.Text) < 1000 || Int32.Parse(textBoxWrdPort.Text) > 65535)
                 {
                     ShowErrorMessage("please enter port between 1000 and 65535");
                     return;
@@ -376,6 +476,7 @@ namespace Deployer
             txtboxInstallsPath.Text = "";
             btnInstall.Enabled = false;
             ShowErrorMessage("please check your Paths for valid paths\n-" + location);
+            txtboxInstallsPath.Enabled = true;
         }
 
         /*
@@ -385,13 +486,13 @@ namespace Deployer
         {
             MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-
         /*
         *set the deployer.bat path
         */
-        private void SetDeployerPath(string installationsPath)
+        private void SetDeployerPath()
         {
-            DeployerScript = installationsPath + @"\Deplyer.bat";
+            DeployerScript = deployer_appdata + "\\Deplyer.bat";
+            CreateFile(DeployerScript);
         }
 
         /*
@@ -412,7 +513,6 @@ namespace Deployer
             Deployer d = new Deployer();
             d.Closed += (s, args) => Close();
             d.Show();
-
         }
 
         /*********/
@@ -434,9 +534,9 @@ namespace Deployer
                 programsToInstall.Add(programPath);
             else//remove program from array 
                 programsToInstall.Remove(programPath);
-                //for (int i = 0; i < programsToInstall.Count; i++)
-                //    if (programsToInstall[i] == programPath)
-                //        programsToInstall.RemoveAt(i);
+            //for (int i = 0; i < programsToInstall.Count; i++)
+            //    if (programsToInstall[i] == programPath)
+            //        programsToInstall.RemoveAt(i);
         }
 
         /*
@@ -507,6 +607,23 @@ namespace Deployer
         private void BtnLanScan_Click(object sender, EventArgs e)//get lan scanner form
         {
             new FrmLanScanner();
+        }
+
+        private void comboBoxAvailablePaths_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            txtboxInstallsPath.Text = comboBoxAvailablePaths.SelectedItem.ToString();
+        }
+
+        private void btnInstallCosmos_Click(object sender, EventArgs e)
+        {
+            string cosmos_auto_install = @"\\ad.ast-science.com\share\EngTLV\RnD\users\Alon\Cosmos_Israel\CosmosClown.exe";
+            RunCmd(cosmos_auto_install, true);
+        }
+
+        private void btnLabComputer_Click(object sender, EventArgs e)
+        {
+            string cosmos_auto_install = @"\\ad.ast-science.com\share\EngTLV\RnD\users\Alon\scripts\auto_New_Lab_PC.bat";
+            RunCmd(cosmos_auto_install, true);
         }
     }
 }
