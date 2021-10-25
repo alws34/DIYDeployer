@@ -62,9 +62,7 @@ namespace Deployer
                     avaialble_Paths.Add(line);
                     comboBoxAvailablePaths.Items.Add(line);
                 }
-            }
-                
-                    
+            }                   
         }
 
         private void GetInitFiles()
