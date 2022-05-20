@@ -75,7 +75,7 @@ namespace Deployer
             this.textBoxDateTime.MaxLength = 50;
             this.textBoxDateTime.Name = "textBoxDateTime";
             this.textBoxDateTime.ReadOnly = true;
-            this.textBoxDateTime.Size = new System.Drawing.Size(166, 23);
+            this.textBoxDateTime.Size = new System.Drawing.Size(166, 26);
             this.textBoxDateTime.TabIndex = 70;
             // 
             // buttonRandomWRDport
@@ -104,7 +104,7 @@ namespace Deployer
             this.textBoxWrdPort.BackColor = System.Drawing.Color.White;
             this.textBoxWrdPort.Location = new System.Drawing.Point(619, 444);
             this.textBoxWrdPort.Name = "textBoxWrdPort";
-            this.textBoxWrdPort.Size = new System.Drawing.Size(93, 23);
+            this.textBoxWrdPort.Size = new System.Drawing.Size(93, 26);
             this.textBoxWrdPort.TabIndex = 65;
             this.textBoxWrdPort.Tag = "Port number between 34568 and 65535";
             this.textBoxWrdPort.TextChanged += new System.EventHandler(this.TextBoxWrdPort_TextChanged);
@@ -115,7 +115,7 @@ namespace Deployer
             this.checkBoxChangeWRDPort.AutoSize = true;
             this.checkBoxChangeWRDPort.Location = new System.Drawing.Point(452, 446);
             this.checkBoxChangeWRDPort.Name = "checkBoxChangeWRDPort";
-            this.checkBoxChangeWRDPort.Size = new System.Drawing.Size(161, 21);
+            this.checkBoxChangeWRDPort.Size = new System.Drawing.Size(189, 24);
             this.checkBoxChangeWRDPort.TabIndex = 64;
             this.checkBoxChangeWRDPort.Text = "Change WRD Port";
             this.checkBoxChangeWRDPort.UseVisualStyleBackColor = true;
@@ -126,7 +126,7 @@ namespace Deployer
             this.checkBoxDrivers.AutoSize = true;
             this.checkBoxDrivers.Location = new System.Drawing.Point(269, 446);
             this.checkBoxDrivers.Name = "checkBoxDrivers";
-            this.checkBoxDrivers.Size = new System.Drawing.Size(177, 21);
+            this.checkBoxDrivers.Size = new System.Drawing.Size(206, 24);
             this.checkBoxDrivers.TabIndex = 62;
             this.checkBoxDrivers.Text = "Open Drivers Folder";
             this.checkBoxDrivers.UseVisualStyleBackColor = true;
@@ -148,15 +148,15 @@ namespace Deployer
             this.labelPathFile.AutoSize = true;
             this.labelPathFile.Location = new System.Drawing.Point(9, 527);
             this.labelPathFile.Name = "labelPathFile";
-            this.labelPathFile.Size = new System.Drawing.Size(152, 17);
+            this.labelPathFile.Size = new System.Drawing.Size(178, 20);
             this.labelPathFile.TabIndex = 69;
             this.labelPathFile.Text = "Paths  File Location";
             // 
             // txtboxInstallsPath
             // 
-            this.txtboxInstallsPath.Location = new System.Drawing.Point(167, 524);
+            this.txtboxInstallsPath.Location = new System.Drawing.Point(193, 521);
             this.txtboxInstallsPath.Name = "txtboxInstallsPath";
-            this.txtboxInstallsPath.Size = new System.Drawing.Size(385, 23);
+            this.txtboxInstallsPath.Size = new System.Drawing.Size(385, 26);
             this.txtboxInstallsPath.TabIndex = 68;
             this.txtboxInstallsPath.Tag = "Enter Paths.txt *path* full here";
             this.txtboxInstallsPath.TextChanged += new System.EventHandler(this.TxtboxInstallsPath_TextChanged);
@@ -172,7 +172,7 @@ namespace Deployer
             // 
             // Deployer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
