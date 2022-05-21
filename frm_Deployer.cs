@@ -17,12 +17,13 @@ namespace Deployer
         private List<string> programsToInstall = new List<string>(); //list of intended programs to Install
         string[] postfixes = { ".exe", ".msi", ".zip", ".7z", ".rar" };
         string[] dirs_to_ignore = { "Drivers", "drivers", "OSs", "operating systems", "RegistryHacks", "RPi", "RPI" };
-
+        List<ProgramDetails> programs_lst = new List<ProgramDetails>();
         public Deployer()
         {
             InitializeComponent();
-            // GetFilesFromGitHub();
+            GetFilesFromGitHub();
             SetFormComponentsMode(false);
+            CenterToScreen();
         }
 
 
@@ -72,51 +73,39 @@ namespace Deployer
             {
                 if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
                 {
-                    int counter = 0;
-                    string programName = "";
-                    string chckboxText = "";
-                    string[] subdirs = GetDirectories(path);
                     Control[] checkboxlst = { };
-                    List<string> programnames = new List<string>();
-                    List<FlowLayoutPanel> flplst = new List<FlowLayoutPanel>();
-
                     DirectoryUC duc = new DirectoryUC();
+                    List<string> duplicate_avoidance_lst = new List<string>();
 
-                    foreach (string dir in subdirs)
+                    foreach (string subdir in GetDirsFromPath(path))
                     {
-                        if (!dirs_to_ignore.Contains(dir))
+                        if (!dirs_to_ignore.Contains(Path.GetDirectoryName(subdir)))
                         {
-                            List<string> dir_files = GetDirFiles(path);
-                            duc.SetLabel(Path.GetDirectoryName(dir));
-
-                            foreach (string fileName in dir_files)
+                            foreach (string program_full_path in GetProgramsFromSubDir(path))
                             {
                                 foreach (string postfix in postfixes)
                                 {
-                                    if (fileName.Contains(postfix))
+                                    if (program_full_path.EndsWith(postfix))
                                     {
-                                        programName = fileName.Replace(Path.GetDirectoryName(fileName), "");
-                                        chckboxText = programName.Replace(postfix, "").Replace(@"\", "");
-                                        CheckBox chckbox = CreateCheckBox(programName, chckboxText, $"{fileName}");
+                                        string program_Name = program_full_path.Replace(Path.GetDirectoryName(program_full_path), "").Replace(postfix, "").Replace(@"\", "");
 
-                                        if (counter > 0 && checkboxlst != null)
+                                        if (!duplicate_avoidance_lst.Contains(program_Name))
                                         {
-                                            if (!programnames.Contains(chckbox.Name))
-                                            {
-                                                programnames.Add(chckbox.Name);
-                                                duc.AddControlToFLP(chckbox);
-                                            }
-                                        }
-                                        else
+                                            ProgramDetails p = new ProgramDetails(program_Name, program_full_path);
+                                            CheckBox chckbox = CreateCheckBox(p);
+                                            duplicate_avoidance_lst.Add(program_Name);
+                                            programs_lst.Add(p);
                                             duc.AddControlToFLP(chckbox);
-
-                                        counter++;
+                                        }
                                     }
                                 }
                             }
 
                             if (duc.GetControlsCount() >= 1)
+                            {
                                 flpl.Controls.Add(duc);
+                                duc.SetLabel(Path.GetDirectoryName(subdir));
+                            }
                         }
                     }
                 }
@@ -127,13 +116,13 @@ namespace Deployer
             }
         }
 
-        private CheckBox CreateCheckBox(string name, string text, object tag)
+        private CheckBox CreateCheckBox(ProgramDetails program)
         {
             CheckBox chckbox = new CheckBox
             {
-                Name = name,
-                Tag = tag,
-                Text = text
+                Name = program.Name,
+                Text = program.Name,
+                Tag = program.Path
             };
             chckbox.CheckedChanged += new EventHandler(CheckBox_CheckChanged);
 
@@ -143,7 +132,7 @@ namespace Deployer
             return chckbox;
         }
 
-        private List<string> GetDirFiles(string path)
+        private List<string> GetProgramsFromSubDir(string path)
         {
             List<string> files_list = new List<string>();
             try
@@ -164,19 +153,19 @@ namespace Deployer
             try
             {
                 string installationsPath = txtboxInstallsPath.Text;
-
                 Regex Path_regex = new Regex(@"[A-Za-z]{1}:\\[\s\S\d]*");
                 Regex Network_Path_regex = new Regex(@"(?:\\)[a-zA-Z]*");
 
-                if (Path_regex.Match(installationsPath).Success || Network_Path_regex.Match(installationsPath).Success)
+                if (Directory.Exists(installationsPath) && (Path_regex.Match(installationsPath).Success || Network_Path_regex.Match(installationsPath).Success))
                 {
-                    txtboxInstallsPath.Enabled = false;//disable the textbox for changes - Reset will re-enable it 
-                    btnInstall.Enabled = true;
+                        txtboxInstallsPath.Enabled = false;//disable the textbox for changes - Reset will re-enable it 
+                        btnInstall.Enabled = true;
 
-                    string[] dirs = GetDirectories(installationsPath);
-                    foreach (string dir in dirs)
-                        CreateCheckBoxes(dir, flp_main);
+                        foreach (string dir in GetDirsFromPath(installationsPath))
+                            CreateCheckBoxes(dir, flp_main);
                 }
+                else
+                    throw new Exception();            
             }
             catch (Exception e)
             {
@@ -184,7 +173,7 @@ namespace Deployer
             }
         }
 
-        private string[] GetDirectories(string path)
+        private string[] GetDirsFromPath(string path)
         {
             return Directory.GetDirectories(path);
         }
@@ -194,7 +183,7 @@ namespace Deployer
             return Directory.GetFiles(path, search_pattern, search_option);
         }
 
-        private string GetSilentSwitches(string program, string[] switches_arr)//get silent Install switches from DB
+        private string GetSilentSwitches(string program, string[] switches_arr)
         {
             char delimiter = '^';
             foreach (string line in switches_arr)
@@ -207,7 +196,7 @@ namespace Deployer
             return null; // if program not silent switches DB
         }
 
-        private void StartInstall()//start installation
+        private void StartInstall()
         {
             string installationsPath = txtboxInstallsPath.Text;
 
@@ -263,20 +252,23 @@ namespace Deployer
             d.Show();
         }
 
-        private void Install(object sender, EventArgs e)//start Install 
+        private void Install(object sender, EventArgs e)
         {
             StartInstall();
         }
 
         private void CheckBox_CheckChanged(object sender, EventArgs e)
         {
-            CheckBox chckbox = sender as CheckBox;
-            string programPath = chckbox.Tag.ToString();
+            if(sender.GetType().Name == "CheckBox")
+            {
+                CheckBox chckbox = sender as CheckBox;
+                string programPath = chckbox.Tag.ToString();
 
-            if (chckbox.Checked)
-                programsToInstall.Add(programPath);
-            else
-                programsToInstall.Remove(programPath);
+                if (chckbox.Checked)
+                    programsToInstall.Add(programPath);
+                else
+                    programsToInstall.Remove(programPath);
+            }
         }
 
         private void TxtboxInstallsPath_TextChanged(object sender, EventArgs e)
@@ -338,7 +330,7 @@ namespace Deployer
             }
             catch (Exception ex)
             {
-                if (String.IsNullOrEmpty(textBoxWrdPort.Text))
+                if (String.IsNullOrWhiteSpace(textBoxWrdPort.Text))
                     return;
                 else if (textBoxWrdPort.Text.Length < 4 || textBoxWrdPort.Text.Length > 5)
                 {
@@ -362,7 +354,7 @@ namespace Deployer
             toolTipdynamic.ToolTipTitle = textbox.Name;
         }
 
-        private void ButtonReset_Click(object sender, EventArgs e)//Reset form
+        private void ButtonReset_Click(object sender, EventArgs e)
         {
             Reset();
         }

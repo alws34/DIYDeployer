@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Linq;
 
 namespace Deployer
 {
@@ -13,23 +14,22 @@ namespace Deployer
         public FrmLanScanner()
         {
             InitializeComponent();
+            int column_size = listViewLanScan.Size.Width / 3;
             listViewLanScan.View = View.Details;
             listViewLanScan.FullRowSelect = true;
             listViewLanScan.GridLines = true;
-            listViewLanScan.Columns.Add("IP", listViewLanScan.Size.Width / 3);
-            listViewLanScan.Columns.Add("Hostname", listViewLanScan.Size.Width / 3);
-            listViewLanScan.Columns.Add("Description", listViewLanScan.Size.Width / 3);
+            listViewLanScan.Columns.Add("IP", column_size);
+            listViewLanScan.Columns.Add("Hostname", column_size);
+            listViewLanScan.Columns.Add("Description", column_size);
             textBoxIpRange.Text = ReturnIP();
             progressBar.Maximum = 254;
+            CenterToScreen();
             Show();
         }
 
         private string ReturnIP()
         {
-            string hostName = Dns.GetHostName();
-            string myIP = Dns.GetHostEntry(hostName).ToString();
-            myIP = myIP.Substring(0, myIP.LastIndexOf("."));
-            return myIP;
+           return Dns.GetHostEntry(Dns.GetHostName()).AddressList.First(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToString();
         }
         private void Reset()
         {
@@ -57,7 +57,7 @@ namespace Deployer
                     PingReply reply = ping.Send(ip, 100);
                     if (reply.Status == IPStatus.Success)
                     {
-                        if(cancel == true)
+                        if (cancel == true)
                         {
                             Reset();
                             return;
@@ -82,15 +82,23 @@ namespace Deployer
                     }
                     else
                     {
-                        progressBar.BeginInvoke(new Action(() =>
+                        try
                         {
-                            progressBar.Value += 1;
-                            lblStatus.ForeColor = Color.Purple;
-                            lblStatus.Text = $"Scanning: {ip}";
-                            listBoxAvailableIps.Items.Add(ip);
-                            if (progressBar.Value == 254)
-                                lblStatus.Text = "Finished";
-                        }));
+                            progressBar.BeginInvoke(new Action(() =>
+                            {
+                                progressBar.Value += 1;
+                                lblStatus.ForeColor = Color.Purple;
+                                lblStatus.Text = $"Scanning: {ip}";
+                                listBoxAvailableIps.Items.Add(ip);
+                                if (progressBar.Value == 254)
+                                    lblStatus.Text = "Finished";
+                            }));
+                        }
+                        catch (Exception)
+                        {
+                            return;
+                        }
+
                     }
                 }
             }));

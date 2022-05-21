@@ -110,6 +110,7 @@
       <DependentUpon>frm_LAN_Scanner.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="ProgramDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DirectoryUC.resx">
       <DependentUpon>DirectoryUC.cs</DependentUpon>

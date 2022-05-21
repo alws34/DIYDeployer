@@ -12,8 +12,11 @@ namespace Deployer
 {
     public partial class DirectoryUC : UserControl
     {
-        int controls_count = 0; //this seems to be faster than accessing the flpPrograms.Controls
-        ToolTip tt = new ToolTip();
+        int controls_count = 0; //this is faster than accessing the flpPrograms.Controls[]
+        ToolTip tooltip = new ToolTip();
+
+        public int Controls_count { get => controls_count; set => controls_count = value; }
+
         public DirectoryUC()
         {
             InitializeComponent();
@@ -22,23 +25,24 @@ namespace Deployer
         public void SetLabel(string text)
         {
             this.lblDirName.Text = text;
-            tt.SetToolTip(this.lblDirName, text); 
+            tooltip.SetToolTip(this.lblDirName, text); 
         }
-        public void AddControlToFLP(Control c)
+        public void AddControlToFLP(Control control)
         {
-            this.flpPrograms.Controls.Add(c);
-            controls_count++;
+            this.flpPrograms.Controls.Add(control);
+            Controls_count++;
         }
-        public void RemoveControlFromFLP(Control c)
+        public void RemoveControlFromFLP(Control control)
         {
-            if (this.flpPrograms.Controls.Contains(c))
-                this.flpPrograms.Controls.Remove(c);
-            controls_count--;
+            if (this.flpPrograms.Controls.Contains(control))
+                this.flpPrograms.Controls.Remove(control);
+            Controls_count--;
         }
 
         public int GetControlsCount()
         {
-            return this.controls_count;
+            //return this.flpPrograms.Controls.Count;
+            return this.Controls_count;
         }
     }
 }
