@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Deployer
 {
@@ -168,7 +167,7 @@ namespace Deployer
                         if (duc.GetControlsCount() >= 1)
                         {
                             Invoker(flp_main, new Action(() => flp_main.Controls.Add(duc)));
-                            Invoker(duc, new Action(() => duc.SetLabel(Path.GetDirectoryName(subdir))));
+                            Invoker(duc, new Action(() => duc.SetLabel(new DirectoryInfo(subdir).Name)));
                             total_loaded_directories++;
                         }
                         SendMessageToConsole(($"Total controls Loaded for {duc.DirName}: {duc.GetControlsCount()}"));
@@ -230,10 +229,8 @@ namespace Deployer
                     Invoker(btnInstall, new Action(() => btnInstall.Enabled = true));
                     string[] dirs = GetDirsFromPath(installationsPath);
 
-                    CreateDirsSelectorPanel(dirs);
-
-                    //foreach (string dir in dirs)
-                    //    await Task.Run(() => CreateCheckBoxes(dir));
+                    foreach (string dir in dirs)
+                        await Task.Run(() => CreateCheckBoxes(dir));
                 }
                 else
                 {
@@ -246,30 +243,6 @@ namespace Deployer
             {
                 ReenterPaths(e.ToString() + " @SetPanels");
             }
-        }
-
-        private void CreateDirsSelectorPanel(string[] dirs)
-        {
-            Panel dirspanel = new Panel()
-            {
-                Name = "Directories_Panel",
-                Width = 300,
-                Height = 300
-                
-            };
-
-            foreach(string dir in dirs)
-            {
-                RadioButton rb = new RadioButton()
-                {
-                    Name = dir,
-                    Text = Path.GetDirectoryName(dir)
-                };
-                rb.CheckedChanged += radioButton_CheckedChanged;
-                rb.MouseMove += MouseMoveEventHandler;
-                dirspanel.Controls.Add(rb);
-            }
-            flp_main.Controls.Add(dirspanel);
         }
 
         private string[] GetDirsFromPath(string path)
