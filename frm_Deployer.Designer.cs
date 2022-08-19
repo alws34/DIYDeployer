@@ -45,6 +45,8 @@ namespace Deployer
             this.labelPathFile = new System.Windows.Forms.Label();
             this.txtboxInstallsPath = new System.Windows.Forms.TextBox();
             this.flp_main = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnBrowsePath = new System.Windows.Forms.Button();
+            this.textBoxConsole = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // time
@@ -60,9 +62,9 @@ namespace Deployer
             // 
             // btnLanScan
             // 
-            this.btnLanScan.Location = new System.Drawing.Point(617, 513);
+            this.btnLanScan.Location = new System.Drawing.Point(451, 470);
             this.btnLanScan.Name = "btnLanScan";
-            this.btnLanScan.Size = new System.Drawing.Size(95, 45);
+            this.btnLanScan.Size = new System.Drawing.Size(162, 45);
             this.btnLanScan.TabIndex = 71;
             this.btnLanScan.Text = "Lan scanner";
             this.btnLanScan.UseVisualStyleBackColor = true;
@@ -75,7 +77,7 @@ namespace Deployer
             this.textBoxDateTime.MaxLength = 50;
             this.textBoxDateTime.Name = "textBoxDateTime";
             this.textBoxDateTime.ReadOnly = true;
-            this.textBoxDateTime.Size = new System.Drawing.Size(166, 26);
+            this.textBoxDateTime.Size = new System.Drawing.Size(166, 20);
             this.textBoxDateTime.TabIndex = 70;
             // 
             // buttonRandomWRDport
@@ -83,9 +85,9 @@ namespace Deployer
             this.buttonRandomWRDport.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.buttonRandomWRDport.Location = new System.Drawing.Point(619, 481);
             this.buttonRandomWRDport.Name = "buttonRandomWRDport";
-            this.buttonRandomWRDport.Size = new System.Drawing.Size(93, 23);
+            this.buttonRandomWRDport.Size = new System.Drawing.Size(162, 26);
             this.buttonRandomWRDport.TabIndex = 67;
-            this.buttonRandomWRDport.Text = "Random Port";
+            this.buttonRandomWRDport.Text = "Get Random Port";
             this.buttonRandomWRDport.UseVisualStyleBackColor = true;
             this.buttonRandomWRDport.Click += new System.EventHandler(this.ButtonRandomWRDport_Click);
             // 
@@ -102,9 +104,9 @@ namespace Deployer
             // textBoxWrdPort
             // 
             this.textBoxWrdPort.BackColor = System.Drawing.Color.White;
-            this.textBoxWrdPort.Location = new System.Drawing.Point(619, 444);
+            this.textBoxWrdPort.Location = new System.Drawing.Point(666, 444);
             this.textBoxWrdPort.Name = "textBoxWrdPort";
-            this.textBoxWrdPort.Size = new System.Drawing.Size(93, 26);
+            this.textBoxWrdPort.Size = new System.Drawing.Size(93, 20);
             this.textBoxWrdPort.TabIndex = 65;
             this.textBoxWrdPort.Tag = "Port number between 34568 and 65535";
             this.textBoxWrdPort.TextChanged += new System.EventHandler(this.TextBoxWrdPort_TextChanged);
@@ -113,9 +115,9 @@ namespace Deployer
             // checkBoxChangeWRDPort
             // 
             this.checkBoxChangeWRDPort.AutoSize = true;
-            this.checkBoxChangeWRDPort.Location = new System.Drawing.Point(452, 446);
+            this.checkBoxChangeWRDPort.Location = new System.Drawing.Point(471, 446);
             this.checkBoxChangeWRDPort.Name = "checkBoxChangeWRDPort";
-            this.checkBoxChangeWRDPort.Size = new System.Drawing.Size(189, 24);
+            this.checkBoxChangeWRDPort.Size = new System.Drawing.Size(130, 17);
             this.checkBoxChangeWRDPort.TabIndex = 64;
             this.checkBoxChangeWRDPort.Text = "Change WRD Port";
             this.checkBoxChangeWRDPort.UseVisualStyleBackColor = true;
@@ -124,12 +126,14 @@ namespace Deployer
             // checkBoxDrivers
             // 
             this.checkBoxDrivers.AutoSize = true;
-            this.checkBoxDrivers.Location = new System.Drawing.Point(269, 446);
+            this.checkBoxDrivers.Location = new System.Drawing.Point(258, 446);
             this.checkBoxDrivers.Name = "checkBoxDrivers";
-            this.checkBoxDrivers.Size = new System.Drawing.Size(206, 24);
+            this.checkBoxDrivers.Size = new System.Drawing.Size(139, 17);
             this.checkBoxDrivers.TabIndex = 62;
             this.checkBoxDrivers.Text = "Open Drivers Folder";
             this.checkBoxDrivers.UseVisualStyleBackColor = true;
+            this.checkBoxDrivers.Visible = false;
+            this.checkBoxDrivers.CheckedChanged += new System.EventHandler(this.checkBoxDrivers_CheckedChanged);
             // 
             // btnInstall
             // 
@@ -148,7 +152,7 @@ namespace Deployer
             this.labelPathFile.AutoSize = true;
             this.labelPathFile.Location = new System.Drawing.Point(9, 527);
             this.labelPathFile.Name = "labelPathFile";
-            this.labelPathFile.Size = new System.Drawing.Size(178, 20);
+            this.labelPathFile.Size = new System.Drawing.Size(120, 13);
             this.labelPathFile.TabIndex = 69;
             this.labelPathFile.Text = "Paths  File Location";
             // 
@@ -156,7 +160,7 @@ namespace Deployer
             // 
             this.txtboxInstallsPath.Location = new System.Drawing.Point(193, 521);
             this.txtboxInstallsPath.Name = "txtboxInstallsPath";
-            this.txtboxInstallsPath.Size = new System.Drawing.Size(385, 26);
+            this.txtboxInstallsPath.Size = new System.Drawing.Size(420, 20);
             this.txtboxInstallsPath.TabIndex = 68;
             this.txtboxInstallsPath.Tag = "Enter Paths.txt *path* full here";
             this.txtboxInstallsPath.TextChanged += new System.EventHandler(this.TxtboxInstallsPath_TextChanged);
@@ -167,17 +171,37 @@ namespace Deployer
             this.flp_main.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flp_main.Location = new System.Drawing.Point(4, 12);
             this.flp_main.Name = "flp_main";
-            this.flp_main.Size = new System.Drawing.Size(753, 418);
+            this.flp_main.Size = new System.Drawing.Size(750, 418);
             this.flp_main.TabIndex = 72;
+            // 
+            // btnBrowsePath
+            // 
+            this.btnBrowsePath.Location = new System.Drawing.Point(619, 521);
+            this.btnBrowsePath.Name = "btnBrowsePath";
+            this.btnBrowsePath.Size = new System.Drawing.Size(162, 26);
+            this.btnBrowsePath.TabIndex = 74;
+            this.btnBrowsePath.Text = "Browse...";
+            this.btnBrowsePath.UseVisualStyleBackColor = true;
+            this.btnBrowsePath.Click += new System.EventHandler(this.btnBrowsePath_Click);
+            // 
+            // textBoxConsole
+            // 
+            this.textBoxConsole.Location = new System.Drawing.Point(760, 12);
+            this.textBoxConsole.Name = "textBoxConsole";
+            this.textBoxConsole.Size = new System.Drawing.Size(339, 418);
+            this.textBoxConsole.TabIndex = 0;
+            this.textBoxConsole.Text = "";
             // 
             // Deployer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.LightGray;
-            this.ClientSize = new System.Drawing.Size(769, 611);
+            this.ClientSize = new System.Drawing.Size(1102, 611);
+            this.Controls.Add(this.textBoxConsole);
+            this.Controls.Add(this.btnBrowsePath);
             this.Controls.Add(this.flp_main);
             this.Controls.Add(this.btnLanScan);
             this.Controls.Add(this.textBoxDateTime);
@@ -212,6 +236,8 @@ namespace Deployer
         private System.Windows.Forms.Label labelPathFile;
         private System.Windows.Forms.TextBox txtboxInstallsPath;
         private System.Windows.Forms.FlowLayoutPanel flp_main;
+        private System.Windows.Forms.Button btnBrowsePath;
+        private System.Windows.Forms.RichTextBox textBoxConsole;
     }
 }
 

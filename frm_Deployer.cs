@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Deployer
 {
     public partial class Deployer : Form
     {
-
+        private List<string> programs_To_Install = new List<string>();
+        private List<ProgramDetails> programs_detailes_lst = new List<ProgramDetails>();
         private string cwd = Directory.GetCurrentDirectory();
-        private List<string> programsToInstall = new List<string>(); //list of intended programs to Install
-        string[] postfixes = { ".exe", ".msi", ".zip", ".7z", ".rar" };
-        string[] dirs_to_ignore = { "Drivers", "drivers", "OSs", "operating systems", "RegistryHacks", "RPi", "RPI" };
-        List<ProgramDetails> programs_lst = new List<ProgramDetails>();
+        private string[] postfixes = { ".exe", ".msi", ".zip", ".7z", ".rar" };
+        private int total_loaded_directories = 0;
+        private int total_loaded_programs = 0;
+
         public Deployer()
         {
             InitializeComponent();
@@ -25,7 +28,6 @@ namespace Deployer
             SetFormComponentsMode(false);
             CenterToScreen();
         }
-
 
         private void SetFormComponentsMode(bool mode)
         {
@@ -35,10 +37,32 @@ namespace Deployer
             checkBoxChangeWRDPort.Enabled = mode;
             checkBoxDrivers.Enabled = mode;
         }
+
         private void GetFilesFromGitHub()
         {
-            RunCmd($"curl -OL https://raw.githubusercontent.com/alws34/DIYDeployer/main/restartAfterFinish.txt {cwd}");
-            RunCmd($"curl -OL https://raw.githubusercontent.com/alws34/DIYDeployer/main/SilentSwitchesDB.txt {cwd}");
+            if (!(CheckForInternetConnection()))
+            {
+                SendMessageToConsole($"No internet connection.\nAborting.");
+                ExitApp(5000);
+            }
+            if (!File.Exists($"{cwd}\\restartAfterFinish.txt") && !File.Exists($"{cwd}\\SilentSwitchesDB.txt"))
+            {
+                RunCmd($"curl -OL https://raw.githubusercontent.com/alws34/DIYDeployer/main/restartAfterFinish.txt {cwd}");
+                SendMessageToConsole(("Downloaded File restartAfterFinish.txt"));
+                RunCmd($"curl -OL https://raw.githubusercontent.com/alws34/DIYDeployer/main/SilentSwitchesDB.txt {cwd}");
+                SendMessageToConsole(("Downloaded File SilentSwitchesDB.txt"));
+            }
+        }
+
+        private void ExitApp(int ms)
+        {
+            Thread.Sleep(ms);
+            Application.Exit();
+        }
+
+        private bool CheckForInternetConnection()
+        {
+            return NetworkInterface.GetIsNetworkAvailable();
         }
 
         private void RunCmd(string command)
@@ -50,64 +74,108 @@ namespace Deployer
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
             };
-
+            SendMessageToConsole(($"Starting command {command}"));
             var process = Process.Start(processInfo);
 
             process.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
-                Console.WriteLine("output>>" + e.Data);
+                SendMessageToConsole(("output>>" + e.Data));
             process.BeginOutputReadLine();
 
             process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
-                Console.WriteLine("error>>" + e.Data);
+                SendMessageToConsole(("error>>" + e.Data));
             process.BeginErrorReadLine();
 
             process.WaitForExit();
 
-            Console.WriteLine("ExitCode: {0}", process.ExitCode);
+            SendMessageToConsole(($"ExitCode: {process.ExitCode}"));
             process.Close();
         }
 
-        private void CreateCheckBoxes(string path, FlowLayoutPanel flpl)
+        delegate void SetDriversCheckBoxCallBack(string path);
+        private void SetDriversCheckBox(string path)
+        {
+            if (checkBoxDrivers.InvokeRequired)
+            {
+                SetDriversCheckBoxCallBack callback = new SetDriversCheckBoxCallBack(SetDriversCheckBox);
+                checkBoxDrivers.Invoke(callback, path);
+            }
+            else
+            {
+                Invoker(checkBoxDrivers, new Action(() =>
+                {
+                    checkBoxDrivers.Tag = path;
+                    checkBoxDrivers.Visible = true;
+                    checkBoxDrivers.Checked = false;
+                }));
+            }
+        }
+
+        public static void Invoker(Control control, Action action)
+        {
+            control.Invoke(action);
+        }
+
+        private void CreateCheckBoxes(string path)
         {
             try
             {
                 if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
                 {
                     Control[] checkboxlst = { };
-                    DirectoryUC duc = new DirectoryUC();
+                    DirectoryUC duc = new DirectoryUC(path);
                     List<string> duplicate_avoidance_lst = new List<string>();
+                    Application.UseWaitCursor = true;
+                    string drivers_dir = "DRIVERS";
 
-                    foreach (string subdir in GetDirsFromPath(path))
+                    string[] dirs = GetDirsFromPath(path);
+                    foreach (string subdir in dirs)
                     {
-                        if (!dirs_to_ignore.Contains(Path.GetDirectoryName(subdir)))
-                        {
-                            foreach (string program_full_path in GetProgramsFromSubDir(path))
-                            {
-                                foreach (string postfix in postfixes)
-                                {
-                                    if (program_full_path.EndsWith(postfix))
-                                    {
-                                        string program_Name = program_full_path.Replace(Path.GetDirectoryName(program_full_path), "").Replace(postfix, "").Replace(@"\", "");
+                        string parent_dir_name = Directory.GetParent(subdir).Name.ToUpper();
 
-                                        if (!duplicate_avoidance_lst.Contains(program_Name))
-                                        {
-                                            ProgramDetails p = new ProgramDetails(program_Name, program_full_path);
-                                            CheckBox chckbox = CreateCheckBox(p);
-                                            duplicate_avoidance_lst.Add(program_Name);
-                                            programs_lst.Add(p);
-                                            duc.AddControlToFLP(chckbox);
-                                        }
+                        if (parent_dir_name == drivers_dir)
+                            SetDriversCheckBox(path);
+
+                        SendMessageToConsole(($"Loading Controls for directory: {subdir}"));
+                        List<string> programs_in_dir = GetProgramsFromSubDir(path);
+
+                        if (programs_in_dir == null || programs_in_dir.Count == 0)
+                        {
+                            SendMessageToConsole(($"No Programs inside Dir!"));
+                            continue;
+                        }
+
+                        foreach (string program_full_path in programs_in_dir)
+                        {
+                            foreach (string postfix in postfixes)
+                            {
+                                if (program_full_path.EndsWith(postfix))
+                                {
+                                    string program_Name = program_full_path.Replace(Path.GetDirectoryName(program_full_path), "").Replace(postfix, "").Replace(@"\", "");
+
+                                    if (!duplicate_avoidance_lst.Contains(program_Name))
+                                    {
+                                        ProgramDetails current_program = new ProgramDetails(program_Name, program_full_path);
+                                        duplicate_avoidance_lst.Add(program_Name);
+                                        programs_detailes_lst.Add(current_program);
+                                        duc.AddControlToFLP(CreateCheckBox(current_program));
+                                        total_loaded_programs++;
                                     }
                                 }
                             }
-
-                            if (duc.GetControlsCount() >= 1)
-                            {
-                                flpl.Controls.Add(duc);
-                                duc.SetLabel(Path.GetDirectoryName(subdir));
-                            }
                         }
+                        SendMessageToConsole(($"Finished Loading {total_loaded_programs} Controls for directory: {subdir}"));
+                        total_loaded_programs = 0;
+                        if (duc.GetControlsCount() >= 1)
+                        {
+                            Invoker(flp_main, new Action(() => flp_main.Controls.Add(duc)));
+                            Invoker(duc, new Action(() => duc.SetLabel(Path.GetDirectoryName(subdir))));
+                            total_loaded_directories++;
+                        }
+                        SendMessageToConsole(($"Total controls Loaded for {duc.DirName}: {duc.GetControlsCount()}"));
                     }
+                    SendMessageToConsole(($"Path: {path}:\n\tLoaded Total of {total_loaded_directories} Directorie Panels,\n\tand Total of {total_loaded_programs} Programs loaded!"));
+                    total_loaded_directories = 0;
+                    Application.UseWaitCursor = false;
                 }
             }
             catch (Exception e)
@@ -125,9 +193,7 @@ namespace Deployer
                 Tag = program.Path
             };
             chckbox.CheckedChanged += new EventHandler(CheckBox_CheckChanged);
-
-            ToolTip toolTip = new ToolTip();
-            toolTip.SetToolTip(chckbox, chckbox.Tag.ToString());
+            new ToolTip().SetToolTip(chckbox, chckbox.Tag.ToString());
 
             return chckbox;
         }
@@ -137,18 +203,20 @@ namespace Deployer
             List<string> files_list = new List<string>();
             try
             {
+                SendMessageToConsole(($"Getting Programs from Dir {path}"));
                 foreach (string postfix in postfixes)
                     files_list.AddRange(GetFilesFromDir(path, $"*{postfix}", SearchOption.AllDirectories));
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e}");
+                SendMessageToConsole(($"Error @path:\t{path}.\nSays:\t{e}"));
+                return null;
             }
 
             return files_list;
         }
 
-        private void SetPanels()
+        private async void SetPanelsAsync()
         {
             try
             {
@@ -158,14 +226,21 @@ namespace Deployer
 
                 if (Directory.Exists(installationsPath) && (Path_regex.Match(installationsPath).Success || Network_Path_regex.Match(installationsPath).Success))
                 {
-                        txtboxInstallsPath.Enabled = false;//disable the textbox for changes - Reset will re-enable it 
-                        btnInstall.Enabled = true;
+                    Invoker(txtboxInstallsPath, new Action(() => txtboxInstallsPath.Enabled = false));
+                    Invoker(btnInstall, new Action(() => btnInstall.Enabled = true));
+                    string[] dirs = GetDirsFromPath(installationsPath);
 
-                        foreach (string dir in GetDirsFromPath(installationsPath))
-                            CreateCheckBoxes(dir, flp_main);
+                    CreateDirsSelectorPanel(dirs);
+
+                    //foreach (string dir in dirs)
+                    //    await Task.Run(() => CreateCheckBoxes(dir));
                 }
                 else
-                    throw new Exception();            
+                {
+                    SendMessageToConsole(($"Invalid Directory: {installationsPath}"));
+                    Invoker(txtboxInstallsPath, new Action(() => txtboxInstallsPath.Clear()));
+                }
+
             }
             catch (Exception e)
             {
@@ -173,14 +248,56 @@ namespace Deployer
             }
         }
 
+        private void CreateDirsSelectorPanel(string[] dirs)
+        {
+            Panel dirspanel = new Panel()
+            {
+                Name = "Directories_Panel",
+                Width = 300,
+                Height = 300
+                
+            };
+
+            foreach(string dir in dirs)
+            {
+                RadioButton rb = new RadioButton()
+                {
+                    Name = dir,
+                    Text = Path.GetDirectoryName(dir)
+                };
+                rb.CheckedChanged += radioButton_CheckedChanged;
+                rb.MouseMove += MouseMoveEventHandler;
+                dirspanel.Controls.Add(rb);
+            }
+            flp_main.Controls.Add(dirspanel);
+        }
+
         private string[] GetDirsFromPath(string path)
         {
-            return Directory.GetDirectories(path);
+            try
+            {
+                return Directory.GetDirectories(path);
+            }
+            catch (Exception e)
+            {
+                SendMessageToConsole($"{e}");
+                return null;
+            }
+
         }
 
         private string[] GetFilesFromDir(string path, string search_pattern, SearchOption search_option)
         {
-            return Directory.GetFiles(path, search_pattern, search_option);
+            try
+            {
+                return Directory.GetFiles(path, search_pattern, search_option);
+            }
+            catch (Exception e)
+            {
+                SendMessageToConsole($"{e}");
+                return null;
+            }
+
         }
 
         private string GetSilentSwitches(string program, string[] switches_arr)
@@ -200,7 +317,7 @@ namespace Deployer
         {
             string installationsPath = txtboxInstallsPath.Text;
 
-            foreach (string program in programsToInstall)
+            foreach (string program in programs_To_Install)
                 RunInstallation(program);
 
             FinishInstall(installationsPath);
@@ -231,11 +348,21 @@ namespace Deployer
                 return;
         }
 
-        private void ReenterPaths(string location)
+        delegate void ReenterPathsCallback(string txt);
+
+        private void ReenterPaths(string txt)
         {
-            txtboxInstallsPath.Text = "";
-            btnInstall.Enabled = false;
-            ShowMessageBox("please check your Paths for valid paths\n-" + location);
+            if (txtboxInstallsPath.InvokeRequired || btnInstall.InvokeRequired)
+            {
+                ReenterPathsCallback callback = new ReenterPathsCallback(ReenterPaths);
+                Invoke(callback, txt);
+            }
+            else
+            {
+                Invoker(txtboxInstallsPath, new Action(() => txtboxInstallsPath.Text = ""));
+                Invoker(btnInstall, new Action(() => btnInstall.Enabled = false));
+                SendMessageToConsole(($"please check your Paths for valid paths\n - {txt}"));
+            }
         }
 
         private void ShowMessageBox(string message, string caption = "Error", MessageBoxButtons btns = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.Error)
@@ -245,11 +372,13 @@ namespace Deployer
 
         private void Reset()
         {
-            txtboxInstallsPath.Enabled = true;
-            Deployer d = new Deployer();
-            d.Closed += (s, args) => Close();
-            Hide();
-            d.Show();
+            Invoker(flp_main, new Action(() => flp_main.Controls.Clear()));
+            Invoker(txtboxInstallsPath, new Action(() => txtboxInstallsPath.Clear()));
+            Invoker(txtboxInstallsPath, new Action(() => txtboxInstallsPath.Enabled = true));
+            //Deployer d = new Deployer();
+            //d.Closed += (s, args) => Close();
+            //Hide();
+            //d.Show();
         }
 
         private void Install(object sender, EventArgs e)
@@ -257,17 +386,22 @@ namespace Deployer
             StartInstall();
         }
 
+        private void radioButton_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
         private void CheckBox_CheckChanged(object sender, EventArgs e)
         {
-            if(sender.GetType().Name == "CheckBox")
+            if (sender.GetType().Name == "CheckBox")
             {
                 CheckBox chckbox = sender as CheckBox;
                 string programPath = chckbox.Tag.ToString();
 
                 if (chckbox.Checked)
-                    programsToInstall.Add(programPath);
+                    programs_To_Install.Add(programPath);
                 else
-                    programsToInstall.Remove(programPath);
+                    programs_To_Install.Remove(programPath);
             }
         }
 
@@ -275,7 +409,7 @@ namespace Deployer
         {
             checkBoxChangeWRDPort.Enabled = true;
             checkBoxDrivers.Enabled = true;
-            SetPanels();
+            SetPanelsAsync();
         }
 
         private void TextBoxWrdPort_KeyPress(object sender, KeyPressEventArgs e)
@@ -334,11 +468,11 @@ namespace Deployer
                     return;
                 else if (textBoxWrdPort.Text.Length < 4 || textBoxWrdPort.Text.Length > 5)
                 {
-                    ShowMessageBox("please enter port number between 34568 and 65535");
+                    SendMessageToConsole(("please enter port number between 34568 and 65535"));
                     return;
                 }
                 else
-                    ShowMessageBox(ex.ToString() + "\n-@Install");
+                    SendMessageToConsole((ex.ToString() + "\n-@Install"));
             }
         }
 
@@ -347,11 +481,24 @@ namespace Deployer
             textBoxDateTime.Text = DateTime.Now.ToString();
         }
 
-        private void TextBox_MouseMove(object sender, MouseEventArgs e)
+        private void MouseMoveEventHandler(object sender, MouseEventArgs e)
         {
-            TextBox textbox = (sender as TextBox);
-            toolTipdynamic.SetToolTip(textbox, textbox.Tag.ToString());
-            toolTipdynamic.ToolTipTitle = textbox.Name;
+            string sender_type = sender.GetType().Name;
+
+            switch (sender_type)
+            {
+                case "TextBox":
+                    System.Windows.Forms.TextBox tb = (sender as System.Windows.Forms.TextBox);
+                    toolTipdynamic.SetToolTip(tb, tb.Tag.ToString());
+                    toolTipdynamic.ToolTipTitle = tb.Name;
+                    break;
+                case "RadioButton":
+                    RadioButton rb = (sender as RadioButton);
+                    toolTipdynamic.SetToolTip(rb, rb.Tag.ToString());
+                    toolTipdynamic.ToolTipTitle = rb.Name;
+                    break;
+            }
+            
         }
 
         private void ButtonReset_Click(object sender, EventArgs e)
@@ -367,6 +514,32 @@ namespace Deployer
         private void BtnLanScan_Click(object sender, EventArgs e)
         {
             new FrmLanScanner();
+        }
+
+        private void checkBoxDrivers_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox c = sender as CheckBox;
+            if (c != null && !string.IsNullOrWhiteSpace(c.Tag.ToString()))
+                Process.Start(c.Tag.ToString());
+        }
+
+        private void btnBrowsePath_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fbd = new OpenFileDialog()
+            {
+                ValidateNames = false,
+                CheckFileExists = false,
+                CheckPathExists = true,
+                FileName = "Folder Selection."
+            };
+
+            if (fbd.ShowDialog() == DialogResult.OK)
+                txtboxInstallsPath.Text = Path.GetDirectoryName(fbd.FileName);
+        }
+
+        public void SendMessageToConsole(string msg)
+        {
+            Invoker(textBoxConsole, new Action(() => textBoxConsole.AppendText($"{new SendMessageToConsoleEventArgs(msg).Message}{Environment.NewLine}{Environment.NewLine}")));
         }
     }
 }

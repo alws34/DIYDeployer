@@ -14,35 +14,50 @@ namespace Deployer
     {
         int controls_count = 0; //this is faster than accessing the flpPrograms.Controls[]
         ToolTip tooltip = new ToolTip();
+        string dirname = "";
 
         public int Controls_count { get => controls_count; set => controls_count = value; }
+        public string DirName { get => dirname; set => dirname = value; }
 
         public DirectoryUC()
         {
-            InitializeComponent();
+            InitDir();
         }
 
+        public DirectoryUC(string dir_name)
+        {
+            InitDir();
+            DirName = dir_name;
+        }
+
+        private void InitDir()
+        {
+            InitializeComponent();
+            Width = 300;
+        }
+        
         public void SetLabel(string text)
         {
-            this.lblDirName.Text = text;
-            tooltip.SetToolTip(this.lblDirName, text); 
+            lblDirName.Text = text;
+            tooltip.SetToolTip(lblDirName, text);
         }
+
         public void AddControlToFLP(Control control)
         {
-            this.flpPrograms.Controls.Add(control);
+            flpPrograms.Controls.Add(control);
             Controls_count++;
         }
+
         public void RemoveControlFromFLP(Control control)
         {
-            if (this.flpPrograms.Controls.Contains(control))
-                this.flpPrograms.Controls.Remove(control);
+            if (flpPrograms.Controls.Contains(control))
+                flpPrograms.Controls.Remove(control);
             Controls_count--;
         }
 
         public int GetControlsCount()
         {
-            //return this.flpPrograms.Controls.Count;
-            return this.Controls_count;
+            return Controls_count;
         }
     }
 }
